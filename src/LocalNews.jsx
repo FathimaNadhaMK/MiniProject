@@ -11,14 +11,30 @@ function LocalNews() {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   // Use the passed location, or fallback to a default value
-  const [locationName, setLocationName] = useState(fetchedLocation || "📍 സ്ഥലം കണ്ടെത്തുന്നു...");
+  const [locationName, setLocationName] = useState(
+    fetchedLocation || "📍 സ്ഥലം കണ്ടെത്തുന്നു..."
+  );
   const [nearbyPlaces, setNearbyPlaces] = useState([]);
 
-  // On mount, use the passed location to fetch nearby places and news
+  // Automatic translation: translate location from English to Malayalam
+  async function getTranslatedLocation(location) {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ml&dt=t&q=${encodeURIComponent(
+      location
+    )}`;
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      return data[0][0][0].toLowerCase();
+    } catch (error) {
+      console.error("Translation error:", error);
+      return location.toLowerCase();
+    }
+  }
+
+  // On mount: fetch nearby places and news
   useEffect(() => {
     if (fetchedLocation) {
       setLocationName(fetchedLocation);
-      // If coordinates are available, fetch nearby places first
       if (lat && lon) {
         fetchNearbyPlaces(lat, lon).then(() => {
           fetchRSSNews(fetchedLocation);
@@ -27,14 +43,13 @@ function LocalNews() {
         fetchRSSNews(fetchedLocation);
       }
     } else {
-      // Fallback: if no location was passed, you might choose to show general news
       fetchRSSNews("Unknown");
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchedLocation, lat, lon]);
 
-  // 2️⃣ Find Nearby Places (Within 100km)
+  // Fetch nearby places within 100km radius
   const fetchNearbyPlaces = async (lat, lon) => {
     try {
       const res = await fetch("/kerala_places.json"); // Predefined list of cities/towns
@@ -42,7 +57,7 @@ function LocalNews() {
 
       let nearby = places.filter((place) => {
         let distance = getDistance(lat, lon, place.lat, place.lon);
-        return distance <= 100; // Search radius: 100km
+        return distance <= 100;
       });
 
       setNearbyPlaces(nearby.map((p) => p.name));
@@ -52,7 +67,7 @@ function LocalNews() {
     }
   };
 
-  // Calculate Distance Between Two Coordinates
+  // Calculate distance between two coordinates
   const getDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371; // Radius of Earth in km
     const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -66,11 +81,13 @@ function LocalNews() {
     return R * c;
   };
 
-  // 3️⃣ RSS Feed URLs
+  // List of RSS Feed URLs
   const RSS_FEED_URLS = [
+    "https://www.thehindu.com/rssfeeds",
+    "https://www.mathrubhumi.com/rss-feed-1.7275970",
+    "https://www.onmanorama.com/rss.html",
     "https://pulamantholevaarttha.com/feed/",
     "https://feeds.feedburner.com/meenachilnews/Ubwq", 
-    "https://www.meenachilnews.com/rss.xml",
     "https://erattupettanews.com/feed/",
     "https://cefakottayam.webnode.page/rss/news-.xml",
     "https://malayalam.oneindia.com/rss/feeds/oneindia-malayalam-fb.xml",
@@ -80,50 +97,71 @@ function LocalNews() {
     "https://malayalam.oneindia.com/rss/feeds/malayalam-jobs-fb.xml",
   ];
 
-  // 4️⃣ Fetch RSS News
+  // Fetch RSS news, parse and filter them by location
   const fetchRSSNews = async (locationName) => {
     const CORS_PROXY = "https://api.codetabs.com/v1/proxy?quest=";
     let allNews = [];
-
+  
     for (let RSS_FEED_URL of RSS_FEED_URLS) {
       try {
-        const res = await fetch(`${CORS_PROXY}${encodeURIComponent(RSS_FEED_URL)}`);
+        const res = await fetch(
+          `${CORS_PROXY}${encodeURIComponent(RSS_FEED_URL)}`
+        );
         const data = await res.text();
-
         console.log(`✅ RAW XML FROM: ${RSS_FEED_URL}`, data);
-
-        // Parse XML
+  
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(data, "text/xml");
-
-        let items = xmlDoc.getElementsByTagName("item");
-
+        const items = xmlDoc.getElementsByTagName("item");
+  
         for (let i = 0; i < items.length; i++) {
-          let title = items[i].getElementsByTagName("title")[0]?.textContent || "❌ Title Not Found";
-          let descriptionRaw = items[i].getElementsByTagName("description")[0]?.textContent || "❌ No Description";
-          let description = cleanHTML(descriptionRaw); // Remove HTML content
-          let pubDate = items[i].getElementsByTagName("pubDate")[0]?.textContent || "📅 No Date";
-          let link = items[i].getElementsByTagName("link")[0]?.textContent || "#";
-
-          // Extract image from various possible sources
+          let title =
+            items[i]?.getElementsByTagName("title")[0]?.textContent ||
+            "❌ Title Not Found";
+          let descriptionRaw =
+            items[i]?.getElementsByTagName("description")[0]?.textContent ||
+            "❌ No Description";
+          let description = cleanHTML(descriptionRaw);
+          let pubDateStr =
+            items[i]?.getElementsByTagName("pubDate")[0]?.textContent || "";
+          let link =
+            items[i]?.getElementsByTagName("link")[0]?.textContent || "#";
+  
+          // Extract Image URL from media or enclosure or fallback to default image
           let imageUrl =
-            items[i].getElementsByTagName("media:content")[0]?.getAttribute("url") ||
-            items[i].getElementsByTagName("enclosure")[0]?.getAttribute("url") ||
+            items[i]?.getElementsByTagName("media:content")[0]?.getAttribute(
+              "url"
+            ) ||
+            items[i]?.getElementsByTagName("enclosure")[0]?.getAttribute("url") ||
             extractImageFromDescription(descriptionRaw) ||
             "https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png";
-
-          allNews.push({ title, description, pubDate, imageUrl, link });
+  
+          // Convert pubDate to Date object and filter articles within the last 3 days
+          let pubDate = pubDateStr ? new Date(pubDateStr) : null;
+          if (!pubDate || isNaN(pubDate.getTime())) continue;
+  
+          pubDate.setHours(0, 0, 0, 0);
+  
+          let today = new Date();
+          today.setHours(0, 0, 0, 0);
+          let threeDaysAgo = new Date(today);
+          threeDaysAgo.setDate(today.getDate() - 3);
+  
+          if (pubDate >= threeDaysAgo && pubDate <= today) {
+            allNews.push({ title, description, pubDate: pubDateStr, imageUrl, link });
+          }
         }
       } catch (error) {
         console.error(`❌ RSS Fetch Error from ${RSS_FEED_URL}:`, error);
+        continue;
       }
     }
-
-    console.log("✅ Final Fetched News List:", allNews);
+  
+    console.log("✅ Final Fetched News List (Last 3 Days):", allNews);
     filterNewsByLocation(allNews, locationName);
   };
 
-  // Remove HTML tags and extra content from description
+  // Clean HTML tags from the description
   const cleanHTML = (html) => {
     let doc = new DOMParser().parseFromString(html, "text/html");
     let textContent = doc.body.textContent || "";
@@ -133,54 +171,72 @@ function LocalNews() {
     return textContent;
   };
 
-  // Extract image URL from HTML description if available
+  // Extract image URL from an HTML description
   const extractImageFromDescription = (description) => {
     if (!description) return "";
     const imgMatch = description.match(/<img[^>]+src=["']([^"']+)["']/);
     return imgMatch ? imgMatch[1] : "";
   };
 
-  // Mapping English location names to Malayalam (if needed)
-  const locationMap = {
-    "kottayam": "കോട്ടയം",
-    "poonjar": "പൂഞ്ഞാർ",
-    "meenachil": "മീനച്ചിൽ",
-    "kerala": "കേരളം",
-    "ernakulam": "എറണാകുളം",
-    "pathanamthitta": "പത്തനംതിട്ട",
-    "thiruvananthapuram": "തിരുവനന്തപരം",
-    "Pulamanthole": "പുലാമന്തോൾ",
-    "Tirur": "തിരൂർ",
-    "kuttipuram": "കുറ്റിപ്പുറം",
-    "paloor": "പാലൂർ",
-    "melattur": "മേലാറ്റൂർ"
-  };
+  
+  // Filter news articles by matching location keywords using backend NLP API
+const filterNewsByLocation = async (newsList, userLocation) => {
+  if (!userLocation) {
+    console.log("❌ User location not detected. Showing general news.");
+    setNews(newsList.slice(0, 10));
+    setLoading(false);
+    return;
+  }
 
-  // Filter news articles by matching location keywords
-  const filterNewsByLocation = (newsList, userLocation) => {
-    if (!userLocation) {
-      console.log("❌ User location not detected. Showing general news.");
-      setNews(newsList.slice(0, 10));
-      setLoading(false);
-      return;
-    }
+  let englishLocation = userLocation.toLowerCase();
 
-    let englishLocation = userLocation.toLowerCase();
-    let malayalamLocation = locationMap[englishLocation] || englishLocation;
-    let locationVariants = [malayalamLocation, ...nearbyPlaces.map((place) => place.toLowerCase())];
+  // Fetch location variants (both English and Malayalam) from backend
+  let response = await fetch(`http://localhost:5001/get-location-variants/${englishLocation}`);
+  let data = await response.json();
+  let locationVariants = data.variants.map((variant) => variant.toLowerCase());
 
-    console.log("🔎 Filtering news for:", locationVariants);
+  // Also add any nearby places (if available)
+  locationVariants = locationVariants.concat(nearbyPlaces.map((place) => place.toLowerCase()));
 
-    let filteredNews = newsList.filter((article) => {
-      let title = article.title.toLowerCase();
-      let description = article.description.toLowerCase();
-      return locationVariants.some((place) => title.includes(place) || description.includes(place));
+  console.log("🔎 Filtering news for:", locationVariants);
+
+  let filteredNews = [];
+
+  for (let article of newsList) {
+    let text = `${article.title} ${article.description}`;
+
+    // Call backend NLP API to detect locations in the article text
+    let detectedLocations = await fetch("http://localhost:5001/detect-location", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    })
+      .then((res) => res.json())
+      .catch((err) => {
+        console.error("❌ Error calling location API:", err);
+        return { locations: [] };
+      });
+
+    let detectedPlaces = detectedLocations.locations.map((loc) => loc.toLowerCase());
+
+    // Use both backend-detected locations and fallback regex matching
+    let validContext = locationVariants.some((place) => {
+      if (detectedPlaces.includes(place)) {
+        return true;
+      }
+      let regex = new RegExp(`\\b${place}\\b`, "i");
+      return regex.test(text);
     });
 
-    console.log(`✅ Found ${filteredNews.length} location-based news articles`);
-    setNews(filteredNews.length > 0 ? filteredNews : newsList.slice(0, 10));
-    setLoading(false);
-  };
+    if (validContext) {
+      filteredNews.push(article);
+    }
+  }
+
+  console.log(`✅ Found ${filteredNews.length} location-based news articles`);
+  setNews(filteredNews.length > 0 ? filteredNews : newsList.slice(0, 10));
+  setLoading(false);
+};
 
   return (
     <div className="local-news-container">
@@ -189,13 +245,18 @@ function LocalNews() {
       <div className="news-list">
         {news.length > 0 ? (
           news.map((article, index) => (
-            <div key={index} className="news-item" onClick={() => window.open(article.link, "_blank")}>
+            <div
+              key={index}
+              className="news-item"
+              onClick={() => window.open(article.link, "_blank")}
+            >
               <img
                 src={article.imageUrl}
                 alt="വാർത്താ ചിത്രം"
                 className="news-image"
                 onError={(e) =>
-                  (e.target.src = "https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png")
+                  (e.target.src =
+                    "https://upload.wikimedia.org/wikipedia/commons/d/d1/Image_not_available.png")
                 }
               />
               <h2>{article.title}</h2>
@@ -207,7 +268,9 @@ function LocalNews() {
           !loading && <p>❌ ഈ സ്ഥലത്തിന്റെയും യാതൊരു വാർത്തകളും ലഭ്യമല്ല.</p>
         )}
       </div>
-      <button className="back-button" onClick={() => navigate("/home")}>🏠</button>
+      <button className="back-button" onClick={() => navigate("/home")}>
+        🏠
+      </button>
     </div>
   );
 }

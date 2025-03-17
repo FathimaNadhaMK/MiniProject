@@ -1,0 +1,64 @@
+
+.emergency-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .alerts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .alert-card {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: white;
+  }
+  
+  .alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .alert-type {
+    font-weight: bold;
+    color: #666;
+  }
+  
+  .severity-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  .high {
+    background-color: #ffebee;
+    border: 1px solid #ef5350;
+    color: #c62828;
+  }
+  
+  .moderate {
+    background-color: #fff3e0;
+    border: 1px solid #ffa726;
+    color: #ef6c00;
+  }
+  
+  .low {
+    background-color: #e8f5e9;
+    border: 1px solid #66bb6a;
+    color: #2e7d32;
+  }
+  
+  .timestamp {
+    display: block;
+    margin-top: 10px;
+    color: #999;
+    font-size: 12px;
+  }
+  

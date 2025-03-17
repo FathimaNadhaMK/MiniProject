@@ -1,298 +1,309 @@
+/* General container styles */
 .home-container {
-   
-    margin: 0 auto;
-    padding: 30px;
-    font-family: 'Arial', sans-serif;
-    text-align: center;
-  }
-  
+  margin: 0 auto;
+  padding: 30px;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
 
-  .nav-bar {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-  }
-  /* Main container */
-  .search-container {
-    display: flex;        /* Turn on Flexbox */
-    align-items: center;  /* Vertically center items */
-    /* Optional: set a width, background, or other styling */
-    /* width: 100%; */
-    padding: 30px;
-  }
-  
-  .search-bar {
-    order: 2;             /* Make the input come second (right side) */
-    flex: 1;              /* Let the input grow to fill available space */
-    /* Add additional styling as needed */
-  }
-  
-  .barr {
-    order: 1;             /* Make the button come first (left side) */
-    margin-right: 8px;    /* Spacing between button and input */
-    /* Add additional styling as needed */
-  }
-  
-  .search-bar input {
-    width: 100%;
-    /* Additional styling for the input */
-    /* padding, border, etc. */
-  }
-  
-  .barr button {
-    /* Style your button */
-    /* background-color, padding, border, etc. */
-  }
-  
-  /* Adjust the content container */
-.content-container {
-    display: flex;
-    align-items: center; /* Align elements vertically */
-    justify-content: center;
-    gap: 20px; /* Space between elements */
-    flex-direction: row; /* Ensure items are in a row */
 }
-/* The parent container that holds ad-box, loc, and announcement-box */
+
+/* Navigation Bar */
+.nav-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  color: #ff0000;
+  padding-top: 20px;
+}
+
+.nav-bar button {
+  width: auto;
+  min-width: 180px;
+  max-width: 250px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
+
+}
+
+.nav-bar button:hover {
+  transform: scale(1.03);
+}
+
+/* Search Bar */
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  justify-content: center;
+  
+}
+
+.search-bar {
+  flex: 1;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.barr button {
+  padding: 10px 15px;
+  font-size: 16px;
+  background: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.barr button:hover {
+  background: #218838;
+}
+
+/* Layout Container */
 .layout-container {
-  display: flex;             /* Make columns side by side */
-  justify-content: center;   /* Center them horizontally (optional) */
-  gap: 16px;                 /* Space between columns (optional) */
-  margin-top: 16px;          /* Space above the layout */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
 }
 
-/* Left column: advertisement */
+/* Left Column: Advertisement */
 .ad-box {
-  width: 300px;              /* Fixed width for your ad box */
-  min-height: 200px;         /* Example min height */
-  border: 1px solid #ccc;    /* Example border */
-  padding: 16px;             /* Example padding */
-  background-color: #f9f9f9; /* Example background color */
+  width: 300px;
+  min-height: 200px;
+  border: 1px solid #ccc;
+  padding: 16px;
+  background-color: #f9f9f9;
+  text-align: center;
 }
 
-/* Center column: existing Hello container */
+/* Center Column: Location */
 .loc {
-  flex: 1;                   /* Let it grow/shrink to fill remaining space */
-  border: 1px solid #ccc;    /* Example border */
-  padding: 16px;             /* Example padding */
-  background-color: #fff;    /* Example background color */
+  flex: 1;
+  border: 1px solid #ccc;
+  padding: 16px;
+  background-color: #fff;
 }
 
-/* Right column: announcement */
+/* Right Column: Announcements */
 .announcement-box {
-  width: 360px;              /* Fixed width for your announcement box */
+  width: 360px;
   min-height: 200px;
   border: 1px solid #ccc;
   padding: 16px;
   background-color: #f9f9f9;
 }
 
-/* Weather Sidebar - Position to the left of the image */
-.HomePage .weather-sidebar {
-    width: 250px;
-    padding: 15px;
-    background: #f0f0f0;
-    border-radius: 8px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    order: -1; /* Move the weather section to the left */
+/* Weather Sidebar */
+.weather-sidebar {
+  width: 250px;
+  padding: 15px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  order: -1; /* Move the weather section to the left */
 }
 
+/* Weather Summary */
+.weather-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 18px;
+  color: black;
+}
+
+/* Weather Details */
+.weather-details {
+  margin-top: 10px;
+  font-size: 14px;
+  background: #e8e8e8;
+  padding: 10px;
+  border-radius: 5px;
+  color: black;
+}
+
+/* Weather Icon */
+.weather-summary img {
+  width: 60px;
+  height: 60px;
+}
+.weather-container{
+  padding-right: 1504px;
+}
+.weather-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #0a0a0a;
+  font-size: 35px;
+}
 /* Location Image */
 .location-image {
-    width: 500px;
-    height: 400px;
-    object-fit: cover;
-    border-radius: 20px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s;
+  width: 500px;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 20px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.location-image:hover {
+  transform: scale(1.01);
+}
+
+/* Location Text */
+.location-text {
+  font-size: 2.5rem;
+  color: #1f2937;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.location-name {
+  color: #4f46e5;
+  border-bottom: 3px solid #4f46e5;
+  padding-bottom: 5px;
+}
+
+.description {
+  font-size: 1.2rem;
+  color: #4b5563;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+/* Wiki Info */
+.wiki-info {
+  background: #f3f4f6;
+  padding: 20px;
+  border-radius: 15px;
+  margin: 25px auto;
+  color: #374151;
+  line-height: 1.8;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  max-width: 800px;
+}
+
+/* News Section */
+.news-section {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+}
+
+.news-article {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.news-article h3 {
+  margin: 5px 0;
+}
+
+.news-article a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+/* Search Box Styling */
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  position: absolute;
+  top: 120px;
+  right: 10px;
+}
+
+.search-input {
+  padding: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.search-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.search-button:hover {
+  background-color: #0056b3;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .content-container {
-        flex-direction: column; /* Stack elements on small screens */
-        align-items: center;
-    }
-
-    .weather-sidebar {
-        width: 100%;
-        order: 0; /* Reset order so weather appears above the image */
-    }
-}
-
-  
-  /* Adjust the content container */
-
-
-  
-  /* Weather summary */
-  .weather-summary {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 18px;
-    color: black;
-  }
-  
-  /* Weather details */
- .HomePage.weather-details {
-    margin-top: 10px;
-    font-size: 14px;
-    background: #e8e8e8;
-    padding: 10px;
-    border-radius: 5px;
-    color: black;
-  }
-  
-  /* Weather icon */
-  .HomePage.weather-summary img {
-    width: 60px;
-    height: 60px;
-  }
-  
-  
-  .nav-bar button {
-    width: auto; /* Let the width adjust dynamically based on text */
-    min-width: 180px; /* Ensure a reasonable size */
-    max-width: 250px; /* Prevent buttons from stretching too much */
-    padding: 8px 16px; /* Maintain good spacing */
-    border-radius: 12px; /* Less rounded for a cleaner look */
-    font-size: 14px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px; /* Space between icon and text */
-    text-align: center;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15); /* Softer shadow */
-  }
-  
-  .nav-bar button:hover {
-    transform: scale(1.03); /* Subtle hover effect */
-  }
-  
-  
-  .location-text {
-    font-size: 2.5rem;
-    color: #1f2937;
-    margin-bottom: 15px;
-    font-weight: bold;
-  }
-  
-  .location-name {
-    color: #4f46e5;
-    border-bottom: 3px solid #4f46e5;
-    padding-bottom: 5px;
-  }
-  
-  .description {
-    font-size: 1.2rem;
-    color: #4b5563;
-    margin-bottom: 25px;
-    line-height: 1.6;
-  }
-  
-  .wiki-info {
-    background: #f3f4f6;
-    padding: 20px;
-    border-radius: 15px;
-    margin: 25px auto;
-    color: #374151;
-    line-height: 1.8;
-    font-size: 1.1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    max-width: 800px;
-  }
-  
-  .location-image {
-    width: 500px;
-    height: 400px;
-    object-fit: cover;
-    border-radius: 20px;
-    margin-top: 20px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s;
-  }
-  
-  .location-image:hover {
-    transform: scale(1.01);
-  }
-  
-  @media (max-width: 768px) {
-    .nav-bar {
+  .nav-bar {
       justify-content: center;
-    }
-    
-    .nav-bar button {
+  }
+
+  .nav-bar button {
       padding: 5px 10px;
       font-size: 14px;
-    }
-    
-    .location-text {
+  }
+
+  .layout-container {
+      flex-direction: column;
+      align-items: center;
+  }
+
+  .location-text {
       font-size: 2rem;
-    }
-    
-    .description {
+  }
+
+  .description {
       font-size: 1rem;
       text-align: center;
-    }
-  
-    .wiki-info {
+  }
+
+  .wiki-info {
       font-size: 1rem;
-    }
-    
-    .location-image {
+  }
+
+  .location-image {
       height: 300px;
-    }
-    .news-section {
-      margin-top: 20px;
-      padding: 15px;
-      background-color: #f9f9f9;
-      border-radius: 10px;
-    }
-    
-    .news-article {
-      padding: 10px;
-      margin-bottom: 15px;
-      border-bottom: 1px solid #ddd;
-    }
-    
-    .news-article h3 {
-      margin: 5px 0;
-    }
-    
-    .news-article a {
-      color: #007bff;
-      text-decoration: none;
-    }
-    .search-container {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      position: absolute;
-      top: 10px;
-      right: 10px;
-    }
-    
-    .search-input {
-      padding: 5px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    
-    .search-button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    
-    .search-button:hover {
-      background-color: #0056b3;
-    }
-   
+  }
+
+  .weather-sidebar {
+      width: 100%;
+      order: 0;
+  }
+
+  .search-container {
+      position: relative;
+      top: auto;
+      right: auto;
+      justify-content: center;
+      flex-direction: column;
+  }
+
+  .news-section {
+      width: 100%;
+  }
 }

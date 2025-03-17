@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./HomePage.css";
 import { useNavigate } from "react-router-dom"; 
 import Announcement from "./AnnouncementPage";
+import LocalNews from "./LocalNews";
 
 
 function Home() {
@@ -141,7 +142,6 @@ function Home() {
       setLoading(false);
     }
   }, []);
-
   return (
     <div className="home-container">
       {/* Navigation Bar */}
@@ -168,61 +168,35 @@ function Home() {
         >
           🌦️ Weather
         </button>
-        <button onClick={() => navigate("/nearby")}>📍 Nearby Places</button>
-        <button>⚠️ Emergency Alerts</button>
-        <button>📅 Calendar</button>
+        <button onClick={() => navigate("/NearbyPlacesMap")}>📍 Nearby Places</button>
+        <button onClick={() => navigate("/EmegencyAlert")}>⚠️ Emergency Alerts</button>
+       
         <button onClick={() => navigate("/AnnouncementPage")}>
           📢 Announcements
         </button>
         <button>📺 Advertisements</button>
         <button>🚦 Traffic</button>
-        <button>🌍 Global News</button>
+       
       </div>
+      
       <div className="search-container">
-  {/* The input container */}
-  <div className="search-bar">
-    <input
-      type="text"
-      placeholder="Search a location in Kerala"
-      value={searchLocation}
-      onChange={(e) => setSearchLocation(e.target.value)}
-    />
-  </div>
-  
-  {/* The button container */}
-  <div className="barr">
-    <button onClick={handleSearch}>🔍</button>
-  </div>
-</div>
-<div className="layout-container">
-        {/* Left column: Advertisement box */}
-        <div className="ad-box">
-          {/* Sample text or actual ads */}
-          <h2>Advertisement</h2>
-          <p>Place your ad here</p>
+        {/* The input container */}
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="Search a location in Kerala"
+            value={searchLocation}
+            onChange={(e) => setSearchLocation(e.target.value)}
+          />
         </div>
-
-<div className="loc">
-      {/* Location Info */}
-      {loading ? (
-        <p className="loading-text">Fetching your location...</p>
-      ) : (
-        <>
-          <h1 className="location-text">
-            Hello, <span className="location-name">{location} 🌍</span>
-          </h1>
-          <p className="description">{description}</p>
-          <p className="wiki-info">{wikiInfo}</p>
-          {image && <img src={image} alt="Location" className="location-image" />}
-        </>
-      )}
-      </div>
-       {/* Right column: Announcement component */}
-       <div className="announcement-box">
-          <Announcement />
+        
+        {/* The button container */}
+        <div className="barr">
+          <button onClick={handleSearch}>🔍</button>
         </div>
       </div>
-      {/* Weather Summary */}
+      
+      {/* Weather Summary moved under the search bar */}
       {weather && (
         <div className="weather-container">
           <h2>🌦️ Current Weather</h2>
@@ -234,6 +208,31 @@ function Home() {
           </div>
         </div>
       )}
+      
+      <div className="layout-container">
+        {/* Left column: Advertisement box */}
+        <div className="ad-box">
+          {/* Sample text or actual ads */}
+          <h2>Advertisement</h2>
+          <p>contact us to place your ad</p>
+        </div>
+
+        <div className="loc">
+          {/* Location Info */}
+          {loading ? (
+            <p className="loading-text">Fetching your location...</p>
+          ) : (
+            <>
+              <h1 className="location-text">
+                Hello, <span className="location-name">{location} 🌍</span>
+              </h1>
+              <p className="description">{description}</p>
+              <p className="wiki-info">{wikiInfo}</p>
+              {image && <img src={image} alt="Location" className="location-image" />}
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import NearbyPlacesMap from "./NearbyPlacesMap";
 import Weather from "./Weather";
 import LocalNews from "./LocalNews";
 import AnnouncementPage from "./AnnouncementPage";
+import EmergencyAlert from "./EmergencyAlert";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,6 +21,7 @@ function App() {
       <Route path="/weather" element={<Weather />} />
       <Route path="/LocalNews" element={<LocalNews />} />
       <Route path="/AnnouncementPage" element={<AnnouncementPage />} />
+      <Route path="/emergency" element={<EmergencyAlert />} />
       <Route path="*" element={<h1>404 Not Found</h1>} />
     </Routes>
   );
