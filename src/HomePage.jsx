@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";  
 import "./HomePage.css";
 import { useNavigate } from "react-router-dom"; 
-import Announcement from "./AnnouncementPage";
-import LocalNews from "./LocalNews";
+import Announcement from "./AnnouncementPage.jsx";
+import LocalNews from "./LocalNews.jsx";
 
 
 function Home() {
