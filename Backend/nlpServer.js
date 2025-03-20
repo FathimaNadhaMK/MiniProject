@@ -53,6 +53,7 @@ manager.addNamedEntityText("person", "pinarayi vijayan", ["en", "ml"], [
     "എം.കെ. സ്റ്റാലിൻ"
   ]);
   
+  manager.addNamedEntityText("person","poonjar MLA adv sebastin koluthingal",["en","ml"],["poonjar MLA adv sebastin koluthingal","പൂഞ്ഞാർ എംഎൽഎ അഡ്വ. സെബാസ്റ്റ്യൻ കുളത്തുങ്കൽ"]);
   // Add more training if there are other ambiguous cases.
   
   // --- Add Training Documents for Disambiguation ---
@@ -73,7 +74,7 @@ manager.addDocument("ml", "പൂർത്തിയാക്കുന്ന ആ�
 manager.addDocument("en", "Pinarayi Vijayan spoke at the rally", "person.speak");
 manager.addDocument("ml", "പൂഞ്ഞാർ എംഎൽഎ അഡ്വ. സെബാസ്റ്റ്യൻ കുളത്തുങ്കൽ ", "person.speak");
 
-manager.addDocument("en", "I met Mr. Pinarayi Vijayan yesterday", "person.meet");
+
 manager.addDocument("ml", "പൂഞ്ഞാർ ആണെന്നും വനം വകുപ്പ് മന്ത്രി എ. കെ ശശീന്ദ്രൻ നിയമസഭയെ അറിയിച്ചു.", "person.meet");
 
   
