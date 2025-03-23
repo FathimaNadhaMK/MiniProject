@@ -1,45 +1,50 @@
+/* Container styles */
 .container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 20px;
-  }
-  .error-message {
-    color: hsl(0, 90%, 50%);
-    background: #f6f3f7;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    font-size: 14px;
-  }
-  
-  /* Form styles with glass effect */
-  form {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 
-      0 8px 32px rgba(0, 0, 0, 0.1),
-      0 0 0 1px rgba(255, 255, 255, 0.1);
-    width: 100%;
-    max-width: 400px;
-    backdrop-filter: blur(10px);
-    transform: translateY(0);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  /* Subtle form hover effect */
-  form:hover {
-    transform: translateY(-5px);
-    box-shadow: 
-      0 12px 40px rgba(0, 0, 0, 0.15),
-      0 0 0 1px rgba(255, 255, 255, 0.1);
-  }
-  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  font-family: 'Poppins', sans-serif; /* Modern font */
+}
 
+/* Error message styling */
+.error-message {
+  color: hsl(0, 90%, 50%);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
+/* Form styles with glass effect */
+form {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 400px;
+  backdrop-filter: blur(10px);
+  transform: translateY(0);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Subtle form hover effect */
+form:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Heading styles */
 h1 {
   text-align: center;
   background: linear-gradient(135deg, #c3fc3d 0%, #F6A204 50%, #ad7044 100%);
@@ -47,154 +52,154 @@ h1 {
   background-clip: text;
   color: transparent;
   margin-bottom: 30px;
-  font-size: 59px;
+  font-size: 48px; /* Slightly smaller for better readability */
   font-weight: 700;
   letter-spacing: 2px;
-  font-family: 'Pacifico'; /* Adds a playful font */
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Adds soft shadow */
+  font-family: 'Pacifico', cursive; /* Playful font */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Soft shadow */
   transition: transform 0.3s ease-in-out, letter-spacing 0.3s ease-in-out;
   cursor: pointer;
 }
 
+/* Heading hover effect */
 h1:hover {
-  transform: scale(1.1); /* Slight zoom effect on hover */
-  letter-spacing: 4px;   /* Expands letter spacing on hover */
+  transform: scale(1.05); /* Subtle zoom effect */
+  letter-spacing: 3px; /* Slightly expanded spacing */
 }
 
-  
-  /* Input group styles */
-  .input-group {
-    margin-bottom: 25px;
-    position: relative;
+/* Input group styles */
+.input-group {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+/* Label styles with floating animation */
+label {
+  display: block;
+  margin-bottom: 8px;
+  color: #4a5568;
+  font-size: 14px;
+  font-weight: 500;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+/* Input field styles */
+input {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Input focus effects */
+input:focus {
+  border-color: #667eea;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Input placeholder styles */
+input::placeholder {
+  color: #a0aec0;
+}
+
+/* Button styles with gradient */
+button {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #f0c137 0%, #f88330 100%);
+  background-size: 200% 200%; /* For smooth gradient animation */
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+}
+
+/* Button hover effect */
+button:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 8px 20px rgba(118, 75, 162, 0.5);
+  background-position: right center; /* Moves gradient for dynamic effect */
+}
+
+/* Button active (pressed) effect */
+button:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(102, 126, 234, 0.4);
+}
+
+/* Optional glowing border effect on focus */
+button:focus {
+  outline: none;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+}
+
+/* Login text styles */
+.login-text {
+  text-align: center;
+  margin-top: 25px;
+  color: #4a5568;
+  font-size: 14px;
+}
+
+/* Link styles */
+a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Link hover effect with underline animation */
+a:hover {
+  color: #764ba2;
+}
+
+a::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.3s ease;
+}
+
+a:hover::after {
+  width: 100%;
+}
+
+/* Add smooth focus outline for accessibility */
+*:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  form {
+    padding: 30px 20px;
   }
-  
-  /* Label styles with floating animation */
-  label {
-    display: block;
-    margin-bottom: 8px;
-    color: #4a5568;
-    font-size: 14px;
-    font-weight: 500;
-    transform: translateY(0);
-    transition: all 0.3s ease;
+
+  h1 {
+    font-size: 36px; /* Adjusted for smaller screens */
   }
-  
-  /* Input field styles */
-  input {
-    width: 100%;
-    padding: 15px;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.9);
+
+  input, button {
+    padding: 12px;
   }
-  
-  /* Input focus effects */
-  input:focus {
-    border-color: #667eea;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  }
-  
-  /* Input placeholder styles */
-  input::placeholder {
-    color: #a0aec0;
-  }
-  
-  /* Button styles with gradient */
-  button {
-    width: 100%;
-    padding: 16px;
-    
-    background-size: 200% 200%; /* For smooth gradient animation */
-    color: rgb(14, 13, 13);
-    border: none;
-  
-    font-size: 25px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.4s ease;
-    position: relative;
-    overflow: hidden;
-    letter-spacing: 1px;
-    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
-  }
-  
-  /* Button hover effect */
-  button:hover {
-    transform: translateY(-4px) scale(1.03);
-    box-shadow: 0 8px 20px rgba(118, 75, 162, 0.5);
-    background-position: right center; /* Moves gradient for dynamic effect */
-  }
-  
-  /* Button active (pressed) effect */
-  button:active {
-    transform: translateY(0);
-    box-shadow: 0 3px 8px rgba(102, 126, 234, 0.4);
-  }
-  
-  /* Optional glowing border effect on focus */
-  button:focus {
-    outline: none;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-  }
-  
-  /* Login text styles */
-  .login-text {
-    text-align: center;
-    margin-top: 25px;
-    color: #4a5568;
-    font-size: 14px;
-  }
-  
-  /* Link styles */
-  a {
-    color: #667eea;
-    text-decoration: none;
-    font-weight: 500;
-    position: relative;
-    transition: all 0.3s ease;
-  }
-  
-  /* Link hover effect with underline animation */
-  a:hover {
-    color: #764ba2;
-  }
-  
-  a::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -2px;
-    left: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    transition: width 0.3s ease;
-  }
-  
-  a:hover::after {
-    width: 100%;
-  }
-  
-  /* Add smooth focus outline for accessibility */
-  *:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 480px) {
-    form {
-      padding: 30px 20px;
-    }
-    
-    h1 {
-      font-size: 28px;
-    }
-    
-    input, button {
-      padding: 12px;
-    }
-  }
+}

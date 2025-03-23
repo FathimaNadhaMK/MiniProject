@@ -256,7 +256,7 @@ button:hover:not(:disabled) {
 /* CTA Button */
 .cta-button {
  
-  color: white;
+  color: rgb(202, 121, 50);
   border: none;
   font-size: 18px;
   font-weight: bold;

@@ -121,14 +121,6 @@
   order: -1; /* Move the weather section to the left */
 }
 
-/* Weather Summary */
-.weather-summary {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 18px;
-  color: black;
-}
 
 /* Weather Details */
 .weather-details {
@@ -153,6 +145,40 @@
   margin-bottom: 20px;
   color: #0a0a0a;
   font-size: 35px;
+}
+/* Weather Container */
+.weather-container {
+  text-align: center;
+  margin-right: 1500px;
+  padding: 20px;
+  background: rgb(240 239 239 / 90%); /* Semi-transparent white background */
+  
+}
+
+.weather-container h2 {
+  font-size: 24px;
+  color: #2c3e50; /* Dark text color */
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.weather-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.weather-summary img {
+  width: 60px;
+  height: 60px;
+}
+
+.weather-summary p {
+  font-size: 18px;
+  color: #333;
+  margin: 0;
+  font-weight: 500;
 }
 /* Location Image */
 .location-image {

@@ -51,6 +51,18 @@ const AnnouncementPage = () => {
       if (ws) ws.close();
     };
   }, []);
+  useEffect(() => {
+    if (!query.trim()) {
+        setFilteredAnnouncements(announcements);
+        return;
+    }
+    const filtered = announcements.filter((announcement) =>
+        announcement.title.toLowerCase().includes(query.toLowerCase()) ||
+        (announcement.description?.toLowerCase() || "").includes(query.toLowerCase())
+    );
+    setFilteredAnnouncements(filtered);
+}, [query, announcements]);
+
 
   // ✅ Handle new announcements & notifications
   const handleNewAnnouncements = (newAnnouncements) => {
@@ -128,18 +140,18 @@ const AnnouncementPage = () => {
       </header>
 
       {/* Search Bar */}
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search announcements..."
-          style={{ padding: "10px", fontSize: "16px", width: "70%", borderRadius: "4px", border: "1px solid #ddd", marginRight: "10px" }}
-        />
-        <button onClick={handleSearch} style={{ padding: "10px 20px", backgroundColor: "#667eea", color: "#fff", borderRadius: "4px", border: "none", cursor: "pointer" }}>
-          🔍 Search
-        </button>
-      </div>
+      <input
+    type="text"
+    value={query}
+    onChange={(e) => setQuery(e.target.value)}
+    placeholder="Search announcements..."
+    style={{ padding: "10px", fontSize: "16px", width: "70%", borderRadius: "4px", border: "1px solid #ddd", marginRight: "10px" }}
+/>
+<button onClick={handleSearch} style={{ padding: "10px 20px", backgroundColor: "#667eea", color: "#fff", borderRadius: "4px", border: "none", cursor: "pointer" }}>
+    🔍 Search
+</button>
+
+     
 
       {/* Announcements */}
       <div style={{ maxHeight: "400px", overflowY: "scroll", backgroundColor: "#fff", padding: "10px", borderRadius: "4px" }}>

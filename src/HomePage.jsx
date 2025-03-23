@@ -145,6 +145,20 @@ function Home() {
   return (
     <div className="home-container">
       {/* Navigation Bar */}
+       
+      {/* Weather Summary moved under the search bar */}
+      {weather && (
+        <div className="weather-container">
+          <h2>🌦️ Current Weather</h2>
+          <div className="weather-summary">
+            <img src={weather.icon} alt="Weather Icon" />
+            <p>
+              {weather.temp}°C - {weather.description}
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="nav-bar">
         <button>🏠 Home</button>
         {/* Pass location and coordinates to LocalNews via router state */}
@@ -195,19 +209,7 @@ function Home() {
           <button onClick={handleSearch}>🔍</button>
         </div>
       </div>
-      
-      {/* Weather Summary moved under the search bar */}
-      {weather && (
-        <div className="weather-container">
-          <h2>🌦️ Current Weather</h2>
-          <div className="weather-summary">
-            <img src={weather.icon} alt="Weather Icon" />
-            <p>
-              {weather.temp}°C - {weather.description}
-            </p>
-          </div>
-        </div>
-      )}
+     
       
       <div className="layout-container">
         {/* Left column: Advertisement box */}

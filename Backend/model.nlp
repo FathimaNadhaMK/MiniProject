@@ -5,6 +5,9 @@
       "ml"
     ],
     "forceNER": true,
+    "ner": {
+      "threshold": 0.7
+    },
     "tag": "nlp",
     "threshold": 0.5,
     "autoLoad": true,
@@ -36,89 +39,9 @@
           },
           "useStemDict": true
         },
-        "stemDict": {
-          "i,poonjar,visit": {
-            "intent": "location.visit",
-            "domain": "default"
-          },
-          "beauti,is,of,poonjar,the,town": {
-            "intent": "location.info",
-            "domain": "default"
-          },
-          "amaz,poonjar,to,travel,was": {
-            "intent": "location.visit",
-            "domain": "default"
-          },
-          "at,event,poonjar,spoke,the": {
-            "intent": "person.speak",
-            "domain": "default"
-          },
-          "i,met,mr,poonjar,yesterday": {
-            "intent": "person.meet",
-            "domain": "default"
-          },
-          "at,pinarayi,ralli,spoke,the,vijayan": {
-            "intent": "person.speak",
-            "domain": "default"
-          },
-          "i,met,mr,pinarayi,vijayan,yesterday": {
-            "intent": "person.meet",
-            "domain": "default"
-          }
-        },
-        "intentDict": {
-          "location.visit": "default",
-          "location.info": "default",
-          "person.speak": "default",
-          "person.meet": "default"
-        },
-        "sentences": [
-          {
-            "domain": "default",
-            "utterance": "I visited Poonjar",
-            "intent": "location.visit"
-          },
-          {
-            "domain": "default",
-            "utterance": "The town of Poonjar is beautiful",
-            "intent": "location.info"
-          },
-          {
-            "domain": "default",
-            "utterance": "Traveling to Poonjar was amazing",
-            "intent": "location.visit"
-          },
-          {
-            "domain": "default",
-            "utterance": "Poonjar spoke at the event",
-            "intent": "person.speak"
-          },
-          {
-            "domain": "default",
-            "utterance": "I met Mr. Poonjar yesterday",
-            "intent": "person.meet"
-          },
-          {
-            "domain": "default",
-            "utterance": "I visited Poonjar",
-            "intent": "location.visit"
-          },
-          {
-            "domain": "default",
-            "utterance": "The town of Poonjar is beautiful",
-            "intent": "location.info"
-          },
-          {
-            "domain": "default",
-            "utterance": "Pinarayi Vijayan spoke at the rally",
-            "intent": "person.speak"
-          },
-          {
-            "domain": "default",
-            "utterance": "I met Mr. Pinarayi Vijayan yesterday",
-            "intent": "person.meet"
-          }
-        ],
+        "stemDict": {},
+        "intentDict": {},
+        "sentences": [],
         "domains": {
           "master_domain": {
             "settings": {
@@ -132,145 +55,10 @@
               "filterZeros": true,
               "log": true
             },
-            "features": {
-              "i": 1,
-              "visit": 1,
-              "poonjar": 1,
-              "the": 1,
-              "town": 1,
-              "of": 1,
-              "is": 1,
-              "beauti": 1,
-              "travel": 1,
-              "to": 1,
-              "was": 1,
-              "amaz": 1,
-              "spoke": 1,
-              "at": 1,
-              "event": 1,
-              "met": 1,
-              "mr": 1,
-              "yesterday": 1,
-              "pinarayi": 1,
-              "vijayan": 1,
-              "ralli": 1
-            },
-            "intents": {
-              "location.visit": 1,
-              "location.info": 1,
-              "person.speak": 1,
-              "person.meet": 1
-            },
-            "intentFeatures": {
-              "location.visit": {
-                "i": 1,
-                "visit": 1,
-                "poonjar": 1,
-                "travel": 1,
-                "to": 1,
-                "was": 1,
-                "amaz": 1
-              },
-              "location.info": {
-                "the": 1,
-                "town": 1,
-                "of": 1,
-                "poonjar": 1,
-                "is": 1,
-                "beauti": 1
-              },
-              "person.speak": {
-                "poonjar": 1,
-                "spoke": 1,
-                "at": 1,
-                "the": 1,
-                "event": 1,
-                "pinarayi": 1,
-                "vijayan": 1,
-                "ralli": 1
-              },
-              "person.meet": {
-                "i": 1,
-                "met": 1,
-                "mr": 1,
-                "poonjar": 1,
-                "yesterday": 1,
-                "pinarayi": 1,
-                "vijayan": 1
-              }
-            },
-            "featuresToIntent": {
-              "i": [
-                "location.visit",
-                "person.meet"
-              ],
-              "visit": [
-                "location.visit"
-              ],
-              "poonjar": [
-                "location.visit",
-                "location.info",
-                "person.speak",
-                "person.meet"
-              ],
-              "travel": [
-                "location.visit"
-              ],
-              "to": [
-                "location.visit"
-              ],
-              "was": [
-                "location.visit"
-              ],
-              "amaz": [
-                "location.visit"
-              ],
-              "the": [
-                "location.info",
-                "person.speak"
-              ],
-              "town": [
-                "location.info"
-              ],
-              "of": [
-                "location.info"
-              ],
-              "is": [
-                "location.info"
-              ],
-              "beauti": [
-                "location.info"
-              ],
-              "spoke": [
-                "person.speak"
-              ],
-              "at": [
-                "person.speak"
-              ],
-              "event": [
-                "person.speak"
-              ],
-              "pinarayi": [
-                "person.speak",
-                "person.meet"
-              ],
-              "vijayan": [
-                "person.speak",
-                "person.meet"
-              ],
-              "ralli": [
-                "person.speak"
-              ],
-              "met": [
-                "person.meet"
-              ],
-              "mr": [
-                "person.meet"
-              ],
-              "yesterday": [
-                "person.meet"
-              ]
-            },
+            "features": {},
+            "intents": {},
+            "intentFeatures": {},
+            "featuresToIntent": {},
             "neuralNetwork": {
               "settings": {
                 "locale": "en",
@@ -282,134 +70,7 @@
                 "spellCheckDistance": 1,
                 "filterZeros": true,
                 "log": true
-              },
-              "features": [
-                "i",
-                "visit",
-                "poonjar",
-                "the",
-                "town",
-                "of",
-                "is",
-                "beauti",
-                "travel",
-                "to",
-                "was",
-                "amaz",
-                "spoke",
-                "at",
-                "event",
-                "met",
-                "mr",
-                "yesterday",
-                "pinarayi",
-                "vijayan",
-                "ralli"
-              ],
-              "intents": [
-                "location.visit",
-                "location.info",
-                "person.speak",
-                "person.meet"
-              ],
-              "perceptrons": [
-                [
-                  3.1200695037841797,
-                  5.909070014953613,
-                  3.6124517917633057,
-                  -2.08232045173645,
-                  -0.9143737554550171,
-                  -0.9143737554550171,
-                  -0.9143737554550171,
-                  -0.9143737554550171,
-                  2.257885694503784,
-                  2.257885694503784,
-                  2.257885694503784,
-                  2.257885694503784,
-                  -1.1127378940582275,
-                  -1.1127378940582275,
-                  -1.0587363243103027,
-                  -2.786713123321533,
-                  -2.786713123321533,
-                  -2.786713123321533,
-                  -0.26807546615600586,
-                  -0.26807546615600586,
-                  -0.027000203728675842,
-                  1.6344773547698137
-                ],
-                [
-                  -0.8066298961639404,
-                  -0.49541178345680237,
-                  0.8536921739578247,
-                  1.738260269165039,
-                  2.860133171081543,
-                  2.860133171081543,
-                  2.860133171081543,
-                  2.860133171081543,
-                  -0.3646048605442047,
-                  -0.3646048605442047,
-                  -0.3646048605442047,
-                  -0.3646048605442047,
-                  -1.0599154233932495,
-                  -1.0599154233932495,
-                  -0.7395040392875671,
-                  -0.25519099831581116,
-                  -0.25519099831581116,
-                  -0.25519099831581116,
-                  -0.27093783020973206,
-                  -0.27093783020973206,
-                  -0.2326023280620575,
-                  0.2532310680453549
-                ],
-                [
-                  -1.0481148958206177,
-                  -0.29744869470596313,
-                  0.6265689730644226,
-                  2.8200266361236572,
-                  -1.0395077466964722,
-                  -1.0395077466964722,
-                  -1.0395077466964722,
-                  -1.0395077466964722,
-                  -0.33221009373664856,
-                  -0.33221009373664856,
-                  -0.33221009373664856,
-                  -0.33221009373664856,
-                  3.8614590167999268,
-                  3.8614590167999268,
-                  2.3946123123168945,
-                  -0.6838042140007019,
-                  -0.6838042140007019,
-                  -0.6838042140007019,
-                  0.7880899906158447,
-                  0.7880899906158447,
-                  1.4652349948883057,
-                  0.7068836412554219
-                ],
-                [
-                  1.707385778427124,
-                  -2.1741631031036377,
-                  0.24395136535167694,
-                  -0.8415965437889099,
-                  -0.1741938292980194,
-                  -0.1741938292980194,
-                  -0.1741938292980194,
-                  -0.1741938292980194,
-                  -0.13919304311275482,
-                  -0.13919304311275482,
-                  -0.13919304311275482,
-                  -0.13919304311275482,
-                  -0.6326440572738647,
-                  -0.6326440572738647,
-                  -0.04112930968403816,
-                  3.884108066558838,
-                  3.884108066558838,
-                  3.884108066558838,
-                  0.4026583433151245,
-                  0.4026583433151245,
-                  -0.5659632086753845,
-                  0.3119553104883713
-                ]
-              ]
+              }
             }
           }
         }
@@ -427,42 +88,9 @@
           },
           "useStemDict": true
         },
-        "stemDict": {
-          "ആദ്യ,നിയോജകമണ്ഡലം,പൂഞ്ഞാർ,പൂർത്തിയാക്കുന്ന": {
-            "intent": "person.name",
-            "domain": "default"
-          },
-          "അഡ്വ,എംഎൽഎ,കുളത്തുങ്കൽ,പൂഞ്ഞാർ,സെബാസ്റ്റ്യൻ": {
-            "intent": "person.speak",
-            "domain": "default"
-          },
-          "അറിയിച്ചു,ആണെന്നും,എ,കെ,നിയമസഭയെ,പൂഞ്ഞാർ,മന്ത്രി,വകുപ്പ്,വനം,ശശീന്ദ്രൻ": {
-            "intent": "person.meet",
-            "domain": "default"
-          }
-        },
-        "intentDict": {
-          "person.name": "default",
-          "person.speak": "default",
-          "person.meet": "default"
-        },
-        "sentences": [
-          {
-            "domain": "default",
-            "utterance": "പൂർത്തിയാക്കുന്ന ആദ്യ നിയോജകമണ്ഡലം പൂഞ്ഞാർ:",
-            "intent": "person.name"
-          },
-          {
-            "domain": "default",
-            "utterance": "പൂഞ്ഞാർ എംഎൽഎ അഡ്വ. സെബാസ്റ്റ്യൻ കുളത്തുങ്കൽ ",
-            "intent": "person.speak"
-          },
-          {
-            "domain": "default",
-            "utterance": "പൂഞ്ഞാർ ആണെന്നും വനം വകുപ്പ് മന്ത്രി എ. കെ ശശീന്ദ്രൻ നിയമസഭയെ അറിയിച്ചു.",
-            "intent": "person.meet"
-          }
-        ],
+        "stemDict": {},
+        "intentDict": {},
+        "sentences": [],
         "domains": {
           "master_domain": {
             "settings": {
@@ -476,112 +104,10 @@
               "filterZeros": true,
               "log": true
             },
-            "features": {
-              "പൂർത്തിയാക്കുന്ന": 1,
-              "ആദ്യ": 1,
-              "നിയോജകമണ്ഡലം": 1,
-              "പൂഞ്ഞാർ": 1,
-              "എംഎൽഎ": 1,
-              "അഡ്വ": 1,
-              "സെബാസ്റ്റ്യൻ": 1,
-              "കുളത്തുങ്കൽ": 1,
-              "ആണെന്നും": 1,
-              "വനം": 1,
-              "വകുപ്പ്": 1,
-              "മന്ത്രി": 1,
-              "എ": 1,
-              "കെ": 1,
-              "ശശീന്ദ്രൻ": 1,
-              "നിയമസഭയെ": 1,
-              "അറിയിച്ചു": 1
-            },
-            "intents": {
-              "person.name": 1,
-              "person.speak": 1,
-              "person.meet": 1
-            },
-            "intentFeatures": {
-              "person.name": {
-                "പൂർത്തിയാക്കുന്ന": 1,
-                "ആദ്യ": 1,
-                "നിയോജകമണ്ഡലം": 1,
-                "പൂഞ്ഞാർ": 1
-              },
-              "person.speak": {
-                "പൂഞ്ഞാർ": 1,
-                "എംഎൽഎ": 1,
-                "അഡ്വ": 1,
-                "സെബാസ്റ്റ്യൻ": 1,
-                "കുളത്തുങ്കൽ": 1
-              },
-              "person.meet": {
-                "പൂഞ്ഞാർ": 1,
-                "ആണെന്നും": 1,
-                "വനം": 1,
-                "വകുപ്പ്": 1,
-                "മന്ത്രി": 1,
-                "എ": 1,
-                "കെ": 1,
-                "ശശീന്ദ്രൻ": 1,
-                "നിയമസഭയെ": 1,
-                "അറിയിച്ചു": 1
-              }
-            },
-            "featuresToIntent": {
-              "പൂർത്തിയാക്കുന്ന": [
-                "person.name"
-              ],
-              "ആദ്യ": [
-                "person.name"
-              ],
-              "നിയോജകമണ്ഡലം": [
-                "person.name"
-              ],
-              "പൂഞ്ഞാർ": [
-                "person.name",
-                "person.speak",
-                "person.meet"
-              ],
-              "എംഎൽഎ": [
-                "person.speak"
-              ],
-              "അഡ്വ": [
-                "person.speak"
-              ],
-              "സെബാസ്റ്റ്യൻ": [
-                "person.speak"
-              ],
-              "കുളത്തുങ്കൽ": [
-                "person.speak"
-              ],
-              "ആണെന്നും": [
-                "person.meet"
-              ],
-              "വനം": [
-                "person.meet"
-              ],
-              "വകുപ്പ്": [
-                "person.meet"
-              ],
-              "മന്ത്രി": [
-                "person.meet"
-              ],
-              "എ": [
-                "person.meet"
-              ],
-              "കെ": [
-                "person.meet"
-              ],
-              "ശശീന്ദ്രൻ": [
-                "person.meet"
-              ],
-              "നിയമസഭയെ": [
-                "person.meet"
-              ],
-              "അറിയിച്ചു": [
-                "person.meet"
-              ]
-            },
+            "features": {},
+            "intents": {},
+            "intentFeatures": {},
+            "featuresToIntent": {},
             "neuralNetwork": {
               "settings": {
                 "locale": "ml",
@@ -593,155 +119,21 @@
                 "spellCheckDistance": 1,
                 "filterZeros": true,
                 "log": true
-              },
-              "features": [
-                "പൂർത്തിയാക്കുന്ന",
-                "ആദ്യ",
-                "നിയോജകമണ്ഡലം",
-                "പൂഞ്ഞാർ",
-                "എംഎൽഎ",
-                "അഡ്വ",
-                "സെബാസ്റ്റ്യൻ",
-                "കുളത്തുങ്കൽ",
-                "ആണെന്നും",
-                "വനം",
-                "വകുപ്പ്",
-                "മന്ത്രി",
-                "എ",
-                "കെ",
-                "ശശീന്ദ്രൻ",
-                "നിയമസഭയെ",
-                "അറിയിച്ചു"
-              ],
-              "intents": [
-                "person.name",
-                "person.speak",
-                "person.meet"
-              ],
-              "perceptrons": [
-                [
-                  3.6644325256347656,
-                  3.6644325256347656,
-                  3.6644325256347656,
-                  2.2898006439208984,
-                  -0.8739012479782104,
-                  -0.8739012479782104,
-                  -0.8739012479782104,
-                  -0.8739012479782104,
-                  -0.41622379422187805,
-                  -0.41622379422187805,
-                  -0.41622379422187805,
-                  -0.41622379422187805,
-                  -0.41622379422187805,
-                  -0.41622379422187805,
-                  -0.41622379422187805,
-                  -0.41622379422187805,
-                  -0.41622379422187805,
-                  1.137645371010437
-                ],
-                [
-                  -0.8688554167747498,
-                  -0.8688554167747498,
-                  -0.8688554167747498,
-                  1.6357821226119995,
-                  2.969733715057373,
-                  2.969733715057373,
-                  2.969733715057373,
-                  2.969733715057373,
-                  -0.3486658036708832,
-                  -0.3486658036708832,
-                  -0.3486658036708832,
-                  -0.3486658036708832,
-                  -0.3486658036708832,
-                  -0.3486658036708832,
-                  -0.3486658036708832,
-                  -0.3486658036708832,
-                  -0.3486658036708832,
-                  0.8096413046301335
-                ],
-                [
-                  -0.4215973913669586,
-                  -0.4215973913669586,
-                  -0.4215973913669586,
-                  0.6083337068557739,
-                  -0.34606286883354187,
-                  -0.34606286883354187,
-                  -0.34606286883354187,
-                  -0.34606286883354187,
-                  1.4932286739349365,
-                  1.4932286739349365,
-                  1.4932286739349365,
-                  1.4932286739349365,
-                  1.4932286739349365,
-                  1.4932286739349365,
-                  1.4932286739349365,
-                  1.4932286739349365,
-                  1.4932286739349365,
-                  0.3086918991832353
-                ]
-              ]
+              }
             }
           }
         }
       }
     },
     "intentDomains": {},
-    "extraSentences": [
-      [
-        "en",
-        "I visited Poonjar"
-      ],
-      [
-        "en",
-        "The town of Poonjar is beautiful"
-      ],
-      [
-        "en",
-        "Traveling to Poonjar was amazing"
-      ],
-      [
-        "en",
-        "Poonjar spoke at the event"
-      ],
-      [
-        "en",
-        "I met Mr. Poonjar yesterday"
-      ],
-      [
-        "en",
-        "I visited Poonjar"
-      ],
-      [
-        "en",
-        "The town of Poonjar is beautiful"
-      ],
-      [
-        "ml",
-        "പൂർത്തിയാക്കുന്ന ആദ്യ നിയോജകമണ്ഡലം പൂഞ്ഞാർ:"
-      ],
-      [
-        "en",
-        "Pinarayi Vijayan spoke at the rally"
-      ],
-      [
-        "ml",
-        "പൂഞ്ഞാർ എംഎൽഎ അഡ്വ. സെബാസ്റ്റ്യൻ കുളത്തുങ്കൽ "
-      ],
-      [
-        "en",
-        "I met Mr. Pinarayi Vijayan yesterday"
-      ],
-      [
-        "ml",
-        "പൂഞ്ഞാർ ആണെന്നും വനം വകുപ്പ് മന്ത്രി എ. കെ ശശീന്ദ്രൻ നിയമസഭയെ അറിയിച്ചു."
-      ]
-    ]
+    "extraSentences": []
   },
   "ner": {
     "settings": {
       "tag": "ner",
       "entityPreffix": "%",
-      "entitySuffix": "%"
+      "entitySuffix": "%",
+      "threshold": 0.7
     },
     "rules": {
       "en": {
@@ -753,7 +145,6 @@
               "option": "kottayam",
               "texts": [
                 "Kottayam",
-                "kottayam",
                 "കോട്ടയം"
               ]
             },
@@ -761,7 +152,6 @@
               "option": "erattupetta",
               "texts": [
                 "Erattupetta",
-                "erattupetta",
                 "ഈരാറ്റുപേട്ട"
               ]
             },
@@ -769,7 +159,6 @@
               "option": "poonjar",
               "texts": [
                 "Poonjar",
-                "poonjar",
                 "പൂഞ്ഞാർ"
               ]
             },
@@ -777,7 +166,6 @@
               "option": "meenachil",
               "texts": [
                 "Meenachil",
-                "meenachil",
                 "മീനച്ചിൽ"
               ]
             },
@@ -785,7 +173,6 @@
               "option": "kerala",
               "texts": [
                 "Kerala",
-                "kerala",
                 "കേരളം"
               ]
             },
@@ -793,7 +180,6 @@
               "option": "ernakulam",
               "texts": [
                 "Ernakulam",
-                "ernakulam",
                 "എറണാകുളം"
               ]
             },
@@ -801,7 +187,6 @@
               "option": "pathanamthitta",
               "texts": [
                 "Pathanamthitta",
-                "pathanamthitta",
                 "പത്തനംതിട്ട"
               ]
             },
@@ -809,23 +194,13 @@
               "option": "thiruvananthapuram",
               "texts": [
                 "Thiruvananthapuram",
-                "thiruvananthapuram",
                 "തിരുവനന്തപുരം"
-              ]
-            },
-            {
-              "option": "pulamanthole",
-              "texts": [
-                "Pulamanthole",
-                "pulamanthole",
-                " പുലാമന്തോൾ "
               ]
             },
             {
               "option": "kollam",
               "texts": [
                 "Kollam",
-                "kollam",
                 "കൊല്ലം"
               ]
             },
@@ -833,7 +208,6 @@
               "option": "alappuzha",
               "texts": [
                 "Alappuzha",
-                "alappuzha",
                 "ആലപ്പുഴ"
               ]
             },
@@ -841,7 +215,6 @@
               "option": "idukki",
               "texts": [
                 "Idukki",
-                "idukki",
                 "ഇടുക്കി"
               ]
             },
@@ -849,7 +222,6 @@
               "option": "thrissur",
               "texts": [
                 "Thrissur",
-                "thrissur",
                 "തൃശ്ശൂര്"
               ]
             },
@@ -857,7 +229,6 @@
               "option": "palakkad",
               "texts": [
                 "Palakkad",
-                "palakkad",
                 "പാലക്കാട്"
               ]
             },
@@ -865,7 +236,6 @@
               "option": "malappuram",
               "texts": [
                 "Malappuram",
-                "malappuram",
                 "മലപ്പുറം"
               ]
             },
@@ -873,7 +243,6 @@
               "option": "kozhikode",
               "texts": [
                 "Kozhikode",
-                "kozhikode",
                 "കോഴിക്കോഡ്"
               ]
             },
@@ -881,7 +250,6 @@
               "option": "wayanad",
               "texts": [
                 "Wayanad",
-                "wayanad",
                 "വയനാട്"
               ]
             },
@@ -889,7 +257,6 @@
               "option": "kannur",
               "texts": [
                 "Kannur",
-                "kannur",
                 "കണ്ണൂര്"
               ]
             },
@@ -897,8 +264,274 @@
               "option": "kasaragod",
               "texts": [
                 "Kasaragod",
-                "kasaragod",
                 "കാസര്‍കോട്"
+              ]
+            },
+            {
+              "option": "pala",
+              "texts": [
+                "Pala",
+                "പാല",
+                "പാലാ"
+              ]
+            },
+            {
+              "option": "changanassery",
+              "texts": [
+                "Changanassery",
+                "ചങ്ങനാശ്ശേരി"
+              ]
+            },
+            {
+              "option": "vaikom",
+              "texts": [
+                "Vaikom",
+                "വൈക്കം"
+              ]
+            },
+            {
+              "option": "mundakkayam",
+              "texts": [
+                "Mundakkayam",
+                "മുണ്ടക്കായം"
+              ]
+            },
+            {
+              "option": "kanjirappally",
+              "texts": [
+                "Kanjirappally",
+                "കാഞ്ഞിരപ്പള്ളി"
+              ]
+            },
+            {
+              "option": "kaduthuruthy",
+              "texts": [
+                "Kaduthuruthy",
+                "കടുത്തുരുത്തി"
+              ]
+            },
+            {
+              "option": "thiruvalla",
+              "texts": [
+                "Thiruvalla",
+                "തിരുവല്ല"
+              ]
+            },
+            {
+              "option": "mallappally",
+              "texts": [
+                "Mallappally",
+                "മല്ലപ്പള്ളി"
+              ]
+            },
+            {
+              "option": "kuravilangad",
+              "texts": [
+                "Kuravilangad",
+                "കുറവിലങ്ങാട്"
+              ]
+            },
+            {
+              "option": "bharananganam",
+              "texts": [
+                "Bharananganam",
+                "ഭരണങ്ങാനം"
+              ]
+            },
+            {
+              "option": "elikkulam",
+              "texts": [
+                "Elikkulam",
+                "എളിക്കുളം"
+              ]
+            },
+            {
+              "option": "kangazha",
+              "texts": [
+                "Kangazha",
+                "കാഞ്ഞാഴ"
+              ]
+            },
+            {
+              "option": "neendoor",
+              "texts": [
+                "Neendoor",
+                "നീന്ദൂർ"
+              ]
+            },
+            {
+              "option": "rampuram",
+              "texts": [
+                "Rampuram",
+                "രാമ്പുറം"
+              ]
+            },
+            {
+              "option": "vakathanam",
+              "texts": [
+                "Vakathanam",
+                "വാകത്താനം"
+              ]
+            },
+            {
+              "option": "aroor",
+              "texts": [
+                "Aroor",
+                "ആറൂർ"
+              ]
+            },
+            {
+              "option": "kumarakom",
+              "texts": [
+                "Kumarakom",
+                "കുമാരകം"
+              ]
+            },
+            {
+              "option": "manarcaud",
+              "texts": [
+                "Manarcaud",
+                "മണർക്കാട്"
+              ]
+            },
+            {
+              "option": "marangattupilly",
+              "texts": [
+                "Marangattupilly",
+                "മറങ്ങാട്ടുപിള്ളി"
+              ]
+            },
+            {
+              "option": "uthiyanoor",
+              "texts": [
+                "Uthiyanoor",
+                "ഉതിയനൂർ"
+              ]
+            },
+            {
+              "option": "vazhoor",
+              "texts": [
+                "Vazhoor",
+                "വാഴൂർ"
+              ]
+            },
+            {
+              "option": "kottathavalam",
+              "texts": [
+                "Kottathavalam",
+                "കോട്ടത്തവളം"
+              ]
+            },
+            {
+              "option": "kallara",
+              "texts": [
+                "Kallara",
+                "കല്ലറ"
+              ]
+            },
+            {
+              "option": "kalloopara",
+              "texts": [
+                "Kalloopara",
+                "കല്ലൂപ്പാറ"
+              ]
+            },
+            {
+              "option": "kothanalloor",
+              "texts": [
+                "Kothanalloor",
+                "കൊത്തനല്ലൂർ"
+              ]
+            },
+            {
+              "option": "kurichy",
+              "texts": [
+                "Kurichy",
+                "കുറിച്ചി"
+              ]
+            },
+            {
+              "option": "kudamaloor",
+              "texts": [
+                "Kudamaloor",
+                "കുടമലൂർ"
+              ]
+            },
+            {
+              "option": "muttuchira",
+              "texts": [
+                "Muttuchira",
+                "മുട്ടുചിറ"
+              ]
+            },
+            {
+              "option": "pariyaram",
+              "texts": [
+                "Pariyaram",
+                "പരിയാരം"
+              ]
+            },
+            {
+              "option": "perumbaikad",
+              "texts": [
+                "Perumbaikad",
+                "പെരുമ്പൈക്കാട്"
+              ]
+            },
+            {
+              "option": "thidanad",
+              "texts": [
+                "Thidanad",
+                "തിടനാട്"
+              ]
+            },
+            {
+              "option": "pulamanthole",
+              "texts": [
+                "Pulamanthole",
+                "പുലാമന്തോൾ"
+              ]
+            },
+            {
+              "option": "koppam",
+              "texts": [
+                "Koppam",
+                "കൊപ്പം"
+              ]
+            },
+            {
+              "option": "ottapalam",
+              "texts": [
+                "Ottapalam",
+                "ഒട്ടപലം"
+              ]
+            },
+            {
+              "option": "chittur",
+              "texts": [
+                "Chittur",
+                "ചിട്ടൂർ"
+              ]
+            },
+            {
+              "option": "alathur",
+              "texts": [
+                "Alathur",
+                "അലത്തൂർ"
+              ]
+            },
+            {
+              "option": "mannarkkad",
+              "texts": [
+                "Mannarkkad",
+                "മണ്ണാർക്കട"
+              ]
+            },
+            {
+              "option": "tirunavaya",
+              "texts": [
+                "Tirunavaya",
+                "തിരുനാവായ"
               ]
             }
           ]
@@ -907,13 +540,6 @@
           "name": "person",
           "type": "enum",
           "rules": [
-            {
-              "option": "poonjar",
-              "texts": [
-                "Poonjar",
-                "poonjar"
-              ]
-            },
             {
               "option": "pinarayi vijayan",
               "texts": [
@@ -929,12 +555,62 @@
               ]
             },
             {
-              "option": "m k staline",
+              "option": "m k stalin",
               "texts": [
                 "M.K. Stalin",
                 "എം.കെ. സ്റ്റാലിൻ"
               ]
-            }
+            },
+            {
+              "option": "poonjar MLA adv sebastin koluthingal",
+              "texts": [
+                "poonjar MLA adv sebastin koluthingal",
+                "പൂഞ്ഞാർ എംഎൽഎ അഡ്വ. സെബാസ്റ്റ്യൻ കുളത്തुङ്കൽ"
+              ]
+            },
+            {
+              "option": "v s achuthanandan",
+              "texts": [
+                "V S Achuthanandan",
+                "വി എസ് അച്യുതാനന്ദൻ"
+              ]
+            },
+            {
+              "option": "k karunakaran",
+              "texts": [
+                "K Karunakaran",
+                "കെ. കരുണാകരൻ"
+              ]
+            },
+            {
+              "option": "oommen chandy",
+              "texts": [
+                "Oommen Chandy",
+                "ഓമ്മൻ ചാണ്ടി"
+              ]
+            },
+            {
+              "option": "a k antony",
+              "texts": [
+                "A K Antony",
+                "എകെ ആന്റണി"
+              ]
+            },
+            {
+              "option": "k muraleedharan",
+              "texts": [
+                "K Muraleedharan",
+                "കെ. മുരളീധരൻ"
+              ]
+            },
+            {
+              "option": "suresh kumar",
+              "texts": [
+                "Suresh Kumar",
+                "സുരേഷ് കുമാർ"
+              ]
+            },
+            "/^(kottayam|erattupetta|poonjar|meenachil|kerala|ernakulam|pathanamthitta|thiruvananthapuram|kollam|alappuzha|idukki|thrissur|palakkad|malappuram|kozhikode|wayanad|kannur|kasaragod|pala|changanassery|vaikom|mundakkayam|kanjirappally|kaduthuruthy|thiruvalla|mallappally|kuravilangad|bharananganam|elikkulam|kangazha|neendoor|rampuram|vakathanam|aroor|kumarakom|manarcaud|marangattupilly|uthiyanoor|vazhoor|kottathavalam|kallara|kalloopara|kothanalloor|kurichy|kudamaloor|muttuchira|pariyaram|perumbaikad|thidanad|pulamanthole|koppam|ottapalam|chittur|alathur|mannarkkad|tirunavaya)\\s+\\w+/gi"
           ]
         }
       },
@@ -947,7 +623,6 @@
               "option": "kottayam",
               "texts": [
                 "Kottayam",
-                "kottayam",
                 "കോട്ടയം"
               ]
             },
@@ -955,7 +630,6 @@
               "option": "erattupetta",
               "texts": [
                 "Erattupetta",
-                "erattupetta",
                 "ഈരാറ്റുപേട്ട"
               ]
             },
@@ -963,7 +637,6 @@
               "option": "poonjar",
               "texts": [
                 "Poonjar",
-                "poonjar",
                 "പൂഞ്ഞാർ"
               ]
             },
@@ -971,7 +644,6 @@
               "option": "meenachil",
               "texts": [
                 "Meenachil",
-                "meenachil",
                 "മീനച്ചിൽ"
               ]
             },
@@ -979,7 +651,6 @@
               "option": "kerala",
               "texts": [
                 "Kerala",
-                "kerala",
                 "കേരളം"
               ]
             },
@@ -987,7 +658,6 @@
               "option": "ernakulam",
               "texts": [
                 "Ernakulam",
-                "ernakulam",
                 "എറണാകുളം"
               ]
             },
@@ -995,7 +665,6 @@
               "option": "pathanamthitta",
               "texts": [
                 "Pathanamthitta",
-                "pathanamthitta",
                 "പത്തനംതിട്ട"
               ]
             },
@@ -1003,23 +672,13 @@
               "option": "thiruvananthapuram",
               "texts": [
                 "Thiruvananthapuram",
-                "thiruvananthapuram",
                 "തിരുവനന്തപുരം"
-              ]
-            },
-            {
-              "option": "pulamanthole",
-              "texts": [
-                "Pulamanthole",
-                "pulamanthole",
-                " പുലാമന്തോൾ "
               ]
             },
             {
               "option": "kollam",
               "texts": [
                 "Kollam",
-                "kollam",
                 "കൊല്ലം"
               ]
             },
@@ -1027,7 +686,6 @@
               "option": "alappuzha",
               "texts": [
                 "Alappuzha",
-                "alappuzha",
                 "ആലപ്പുഴ"
               ]
             },
@@ -1035,7 +693,6 @@
               "option": "idukki",
               "texts": [
                 "Idukki",
-                "idukki",
                 "ഇടുക്കി"
               ]
             },
@@ -1043,7 +700,6 @@
               "option": "thrissur",
               "texts": [
                 "Thrissur",
-                "thrissur",
                 "തൃശ്ശൂര്"
               ]
             },
@@ -1051,7 +707,6 @@
               "option": "palakkad",
               "texts": [
                 "Palakkad",
-                "palakkad",
                 "പാലക്കാട്"
               ]
             },
@@ -1059,7 +714,6 @@
               "option": "malappuram",
               "texts": [
                 "Malappuram",
-                "malappuram",
                 "മലപ്പുറം"
               ]
             },
@@ -1067,7 +721,6 @@
               "option": "kozhikode",
               "texts": [
                 "Kozhikode",
-                "kozhikode",
                 "കോഴിക്കോഡ്"
               ]
             },
@@ -1075,7 +728,6 @@
               "option": "wayanad",
               "texts": [
                 "Wayanad",
-                "wayanad",
                 "വയനാട്"
               ]
             },
@@ -1083,7 +735,6 @@
               "option": "kannur",
               "texts": [
                 "Kannur",
-                "kannur",
                 "കണ്ണൂര്"
               ]
             },
@@ -1091,8 +742,274 @@
               "option": "kasaragod",
               "texts": [
                 "Kasaragod",
-                "kasaragod",
                 "കാസര്‍കോട്"
+              ]
+            },
+            {
+              "option": "pala",
+              "texts": [
+                "Pala",
+                "പാല",
+                "പാലാ"
+              ]
+            },
+            {
+              "option": "changanassery",
+              "texts": [
+                "Changanassery",
+                "ചങ്ങനാശ്ശേരി"
+              ]
+            },
+            {
+              "option": "vaikom",
+              "texts": [
+                "Vaikom",
+                "വൈക്കം"
+              ]
+            },
+            {
+              "option": "mundakkayam",
+              "texts": [
+                "Mundakkayam",
+                "മുണ്ടക്കായം"
+              ]
+            },
+            {
+              "option": "kanjirappally",
+              "texts": [
+                "Kanjirappally",
+                "കാഞ്ഞിരപ്പള്ളി"
+              ]
+            },
+            {
+              "option": "kaduthuruthy",
+              "texts": [
+                "Kaduthuruthy",
+                "കടുത്തുരുത്തി"
+              ]
+            },
+            {
+              "option": "thiruvalla",
+              "texts": [
+                "Thiruvalla",
+                "തിരുവല്ല"
+              ]
+            },
+            {
+              "option": "mallappally",
+              "texts": [
+                "Mallappally",
+                "മല്ലപ്പള്ളി"
+              ]
+            },
+            {
+              "option": "kuravilangad",
+              "texts": [
+                "Kuravilangad",
+                "കുറവിലങ്ങാട്"
+              ]
+            },
+            {
+              "option": "bharananganam",
+              "texts": [
+                "Bharananganam",
+                "ഭരണങ്ങാനം"
+              ]
+            },
+            {
+              "option": "elikkulam",
+              "texts": [
+                "Elikkulam",
+                "എളിക്കുളം"
+              ]
+            },
+            {
+              "option": "kangazha",
+              "texts": [
+                "Kangazha",
+                "കാഞ്ഞാഴ"
+              ]
+            },
+            {
+              "option": "neendoor",
+              "texts": [
+                "Neendoor",
+                "നീന്ദൂർ"
+              ]
+            },
+            {
+              "option": "rampuram",
+              "texts": [
+                "Rampuram",
+                "രാമ്പുറം"
+              ]
+            },
+            {
+              "option": "vakathanam",
+              "texts": [
+                "Vakathanam",
+                "വാകത്താനം"
+              ]
+            },
+            {
+              "option": "aroor",
+              "texts": [
+                "Aroor",
+                "ആറൂർ"
+              ]
+            },
+            {
+              "option": "kumarakom",
+              "texts": [
+                "Kumarakom",
+                "കുമാരകം"
+              ]
+            },
+            {
+              "option": "manarcaud",
+              "texts": [
+                "Manarcaud",
+                "മണർക്കാട്"
+              ]
+            },
+            {
+              "option": "marangattupilly",
+              "texts": [
+                "Marangattupilly",
+                "മറങ്ങാട്ടുപിള്ളി"
+              ]
+            },
+            {
+              "option": "uthiyanoor",
+              "texts": [
+                "Uthiyanoor",
+                "ഉതിയനൂർ"
+              ]
+            },
+            {
+              "option": "vazhoor",
+              "texts": [
+                "Vazhoor",
+                "വാഴൂർ"
+              ]
+            },
+            {
+              "option": "kottathavalam",
+              "texts": [
+                "Kottathavalam",
+                "കോട്ടത്തവളം"
+              ]
+            },
+            {
+              "option": "kallara",
+              "texts": [
+                "Kallara",
+                "കല്ലറ"
+              ]
+            },
+            {
+              "option": "kalloopara",
+              "texts": [
+                "Kalloopara",
+                "കല്ലൂപ്പാറ"
+              ]
+            },
+            {
+              "option": "kothanalloor",
+              "texts": [
+                "Kothanalloor",
+                "കൊത്തനല്ലൂർ"
+              ]
+            },
+            {
+              "option": "kurichy",
+              "texts": [
+                "Kurichy",
+                "കുറിച്ചി"
+              ]
+            },
+            {
+              "option": "kudamaloor",
+              "texts": [
+                "Kudamaloor",
+                "കുടമലൂർ"
+              ]
+            },
+            {
+              "option": "muttuchira",
+              "texts": [
+                "Muttuchira",
+                "മുട്ടുചിറ"
+              ]
+            },
+            {
+              "option": "pariyaram",
+              "texts": [
+                "Pariyaram",
+                "പരിയാരം"
+              ]
+            },
+            {
+              "option": "perumbaikad",
+              "texts": [
+                "Perumbaikad",
+                "പെരുമ്പൈക്കാട്"
+              ]
+            },
+            {
+              "option": "thidanad",
+              "texts": [
+                "Thidanad",
+                "തിടനാട്"
+              ]
+            },
+            {
+              "option": "pulamanthole",
+              "texts": [
+                "Pulamanthole",
+                "പുലാമന്തോൾ"
+              ]
+            },
+            {
+              "option": "koppam",
+              "texts": [
+                "Koppam",
+                "കൊപ്പം"
+              ]
+            },
+            {
+              "option": "ottapalam",
+              "texts": [
+                "Ottapalam",
+                "ഒട്ടപലം"
+              ]
+            },
+            {
+              "option": "chittur",
+              "texts": [
+                "Chittur",
+                "ചിട്ടൂർ"
+              ]
+            },
+            {
+              "option": "alathur",
+              "texts": [
+                "Alathur",
+                "അലത്തൂർ"
+              ]
+            },
+            {
+              "option": "mannarkkad",
+              "texts": [
+                "Mannarkkad",
+                "മണ്ണാർക്കട"
+              ]
+            },
+            {
+              "option": "tirunavaya",
+              "texts": [
+                "Tirunavaya",
+                "തിരുനാവായ"
               ]
             }
           ]
@@ -1101,13 +1018,6 @@
           "name": "person",
           "type": "enum",
           "rules": [
-            {
-              "option": "poonjar",
-              "texts": [
-                "Poonjar",
-                "poonjar"
-              ]
-            },
             {
               "option": "pinarayi vijayan",
               "texts": [
@@ -1123,12 +1033,62 @@
               ]
             },
             {
-              "option": "m k staline",
+              "option": "m k stalin",
               "texts": [
                 "M.K. Stalin",
                 "എം.കെ. സ്റ്റാലിൻ"
               ]
-            }
+            },
+            {
+              "option": "poonjar MLA adv sebastin koluthingal",
+              "texts": [
+                "poonjar MLA adv sebastin koluthingal",
+                "പൂഞ്ഞാർ എംഎൽഎ അഡ്വ. സെബാസ്റ്റ്യൻ കുളത്തुङ്കൽ"
+              ]
+            },
+            {
+              "option": "v s achuthanandan",
+              "texts": [
+                "V S Achuthanandan",
+                "വി എസ് അച്യുതാനന്ദൻ"
+              ]
+            },
+            {
+              "option": "k karunakaran",
+              "texts": [
+                "K Karunakaran",
+                "കെ. കരുണാകരൻ"
+              ]
+            },
+            {
+              "option": "oommen chandy",
+              "texts": [
+                "Oommen Chandy",
+                "ഓമ്മൻ ചാണ്ടി"
+              ]
+            },
+            {
+              "option": "a k antony",
+              "texts": [
+                "A K Antony",
+                "എകെ ആന്റണി"
+              ]
+            },
+            {
+              "option": "k muraleedharan",
+              "texts": [
+                "K Muraleedharan",
+                "കെ. മുരളീധരൻ"
+              ]
+            },
+            {
+              "option": "suresh kumar",
+              "texts": [
+                "Suresh Kumar",
+                "സുരേഷ് കുമാർ"
+              ]
+            },
+            "/^(kottayam|erattupetta|poonjar|meenachil|kerala|ernakulam|pathanamthitta|thiruvananthapuram|kollam|alappuzha|idukki|thrissur|palakkad|malappuram|kozhikode|wayanad|kannur|kasaragod|pala|changanassery|vaikom|mundakkayam|kanjirappally|kaduthuruthy|thiruvalla|mallappally|kuravilangad|bharananganam|elikkulam|kangazha|neendoor|rampuram|vakathanam|aroor|kumarakom|manarcaud|marangattupilly|uthiyanoor|vazhoor|kottathavalam|kallara|kalloopara|kothanalloor|kurichy|kudamaloor|muttuchira|pariyaram|perumbaikad|thidanad|pulamanthole|koppam|ottapalam|chittur|alathur|mannarkkad|tirunavaya)\\s+\\w+/gi"
           ]
         }
       }
