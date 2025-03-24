@@ -610,7 +610,8 @@
                 "സുരേഷ് കുമാർ"
               ]
             },
-            "/^(kottayam|erattupetta|poonjar|meenachil|kerala|ernakulam|pathanamthitta|thiruvananthapuram|kollam|alappuzha|idukki|thrissur|palakkad|malappuram|kozhikode|wayanad|kannur|kasaragod|pala|changanassery|vaikom|mundakkayam|kanjirappally|kaduthuruthy|thiruvalla|mallappally|kuravilangad|bharananganam|elikkulam|kangazha|neendoor|rampuram|vakathanam|aroor|kumarakom|manarcaud|marangattupilly|uthiyanoor|vazhoor|kottathavalam|kallara|kalloopara|kothanalloor|kurichy|kudamaloor|muttuchira|pariyaram|perumbaikad|thidanad|pulamanthole|koppam|ottapalam|chittur|alathur|mannarkkad|tirunavaya)\\s+\\w+/gi"
+            "/^(kottayam|erattupetta|poonjar|meenachil|kerala|ernakulam|pathanamthitta|thiruvananthapuram|kollam|alappuzha|idukki|thrissur|palakkad|malappuram|kozhikode|wayanad|kannur|kasaragod|pala|changanassery|vaikom|mundakkayam|kanjirappally|kaduthuruthy|thiruvalla|mallappally|kuravilangad|bharananganam|elikkulam|kangazha|neendoor|rampuram|vakathanam|aroor|kumarakom|manarcaud|marangattupilly|uthiyanoor|vazhoor|kottathavalam|kallara|kalloopara|kothanalloor|kurichy|kudamaloor|muttuchira|pariyaram|perumbaikad|thidanad|pulamanthole|koppam|ottapalam|chittur|alathur|mannarkkad|tirunavaya)\\s+.+/gi",
+            "/^(kottayam|erattupetta|poonjar|meenachil|kerala|ernakulam|pathanamthitta|thiruvananthapuram|kollam|alappuzha|idukki|thrissur|palakkad|malappuram|kozhikode|wayanad|kannur|kasaragod|pala|changanassery|vaikom|mundakkayam|kanjirappally|kaduthuruthy|thiruvalla|mallappally|kuravilangad|bharananganam|elikkulam|kangazha|neendoor|rampuram|vakathanam|aroor|kumarakom|manarcaud|marangattupilly|uthiyanoor|vazhoor|kottathavalam|kallara|kalloopara|kothanalloor|kurichy|kudamaloor|muttuchira|pariyaram|perumbaikad|thidanad|pulamanthole|koppam|ottapalam|chittur|alathur|mannarkkad|tirunavaya)\\s+.+/gi"
           ]
         }
       },
@@ -1088,7 +1089,8 @@
                 "സുരേഷ് കുമാർ"
               ]
             },
-            "/^(kottayam|erattupetta|poonjar|meenachil|kerala|ernakulam|pathanamthitta|thiruvananthapuram|kollam|alappuzha|idukki|thrissur|palakkad|malappuram|kozhikode|wayanad|kannur|kasaragod|pala|changanassery|vaikom|mundakkayam|kanjirappally|kaduthuruthy|thiruvalla|mallappally|kuravilangad|bharananganam|elikkulam|kangazha|neendoor|rampuram|vakathanam|aroor|kumarakom|manarcaud|marangattupilly|uthiyanoor|vazhoor|kottathavalam|kallara|kalloopara|kothanalloor|kurichy|kudamaloor|muttuchira|pariyaram|perumbaikad|thidanad|pulamanthole|koppam|ottapalam|chittur|alathur|mannarkkad|tirunavaya)\\s+\\w+/gi"
+            "/^(kottayam|erattupetta|poonjar|meenachil|kerala|ernakulam|pathanamthitta|thiruvananthapuram|kollam|alappuzha|idukki|thrissur|palakkad|malappuram|kozhikode|wayanad|kannur|kasaragod|pala|changanassery|vaikom|mundakkayam|kanjirappally|kaduthuruthy|thiruvalla|mallappally|kuravilangad|bharananganam|elikkulam|kangazha|neendoor|rampuram|vakathanam|aroor|kumarakom|manarcaud|marangattupilly|uthiyanoor|vazhoor|kottathavalam|kallara|kalloopara|kothanalloor|kurichy|kudamaloor|muttuchira|pariyaram|perumbaikad|thidanad|pulamanthole|koppam|ottapalam|chittur|alathur|mannarkkad|tirunavaya)\\s+.+/gi",
+            "/^(kottayam|erattupetta|poonjar|meenachil|kerala|ernakulam|pathanamthitta|thiruvananthapuram|kollam|alappuzha|idukki|thrissur|palakkad|malappuram|kozhikode|wayanad|kannur|kasaragod|pala|changanassery|vaikom|mundakkayam|kanjirappally|kaduthuruthy|thiruvalla|mallappally|kuravilangad|bharananganam|elikkulam|kangazha|neendoor|rampuram|vakathanam|aroor|kumarakom|manarcaud|marangattupilly|uthiyanoor|vazhoor|kottathavalam|kallara|kalloopara|kothanalloor|kurichy|kudamaloor|muttuchira|pariyaram|perumbaikad|thidanad|pulamanthole|koppam|ottapalam|chittur|alathur|mannarkkad|tirunavaya)\\s+.+/gi"
           ]
         }
       }

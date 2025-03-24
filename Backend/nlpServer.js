@@ -3,17 +3,23 @@ import cors from "cors";
 import { NlpManager } from "node-nlp";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-
+import LocationData from "./models/LocationData.js";
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
+// ✅ Connect to MongoDB Atlas
+const MONGO_URI = process.env.MONGO_URI;
+mongoose
+  .connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("✅ Connected to MongoDB Atlas"))
-  .catch(err => console.error("❌ MongoDB Connection Error:", err));
+  .catch((err) => console.error("❌ MongoDB Connection Error:", err)); 
+
 
 // ✅ Define MongoDB Schema for Storing Detected Locations
 const locationSchema = new mongoose.Schema({
@@ -22,7 +28,7 @@ const locationSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
 });
 
-const LocationData = mongoose.model("LocationData", locationSchema); // Use the schema to create the model
+//const LocationData = mongoose.model("LocationData", locationSchema); // Use the schema to create the model
 
 const manager = new NlpManager({
   languages: ["en", "ml"],
@@ -124,14 +130,16 @@ async function trainNLP() {
 
   // --- Additional Training: Recognize Person Names Starting with a Location ---
   const locationKeys = [...new Set(locations.map(([key]) => key))];
-  const regexPattern = new RegExp(`^(${locationKeys.join("|")})\\s+\\w+`, "i"); // Fixed RegExp
-  manager.addRegexEntity("person", ["en", "ml"], regexPattern);
+  const regexPattern = new RegExp(`^(${locationKeys.join("|")})\\s+.+`, "i");
+manager.addRegexEntity("person", ["en", "ml"], regexPattern);
 
   await manager.train();
   await manager.save();
 }
 
 await trainNLP();
+trainNLP().then(() => console.log("✅ NLP Model Trained")).catch(console.error);
+
 
 // ✅ Endpoint for Getting Location Variants
 const locationMapping = {
@@ -209,34 +217,55 @@ const locationMapping = {
 
 };
 
+app.get("/news", async (req, res) => {
+  try {
+    console.log("🔎 Incoming request:", req.query);
+    const { location } = req.query;
+
+    if (!location) {
+      return res.status(400).json({ error: "Missing location parameter" });
+    }
+
+    // ✅ Query the correct `LocationData` collection for news
+    const news = await LocationData.find({
+      location: { $regex: new RegExp(location, "i") },
+      title: { $exists: true }, // ✅ Ensure we are fetching only news articles
+    })
+      .sort({ pubDate: -1 })
+      .limit(20)
+      .lean();
+
+    console.log("✅ News fetched:", news.length);
+    res.json({ news });
+  } catch (error) {
+    console.error("❌ News Fetch Error:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
+  }
+});
+
+
 app.get("/get-location-variants/:location", (req, res) => {
   const location = req.params.location.toLowerCase();
   res.json({ variants: locationMapping[location] || [location] });
 });
 
 // ✅ Optimized Endpoint for Detecting Locations
+ //✅ Location Detection API
 app.post("/detect-location", async (req, res) => {
   const { text } = req.body;
   if (!text) return res.status(400).json({ error: "No text provided" });
 
   try {
-    // 🔍 Check MongoDB first to see if we've already processed this text
     const existingEntry = await LocationData.findOne({ text });
     if (existingEntry) {
       return res.json({ locations: existingEntry.detectedLocations });
     }
 
-    // If not found, process with NLP
     const response = await manager.process("ml", text);
-    const locationEntities = response.entities.filter(entity => entity.entity === "location");
-    const personEntities = response.entities.filter(entity => entity.entity === "person");
+    const locations = response.entities
+      .filter((entity) => entity.entity === "location")
+      .map((entity) => entity.option);
 
-    // 🔍 Filter out names detected as both persons & locations
-    const locations = locationEntities
-      .filter(loc => !personEntities.some(per => per.option.toLowerCase() === loc.option.toLowerCase()))
-      .map(entity => entity.option);
-
-    // ✅ Store in MongoDB for future queries
     if (locations.length > 0) {
       await LocationData.create({ text, detectedLocations: locations });
     }
@@ -246,7 +275,7 @@ app.post("/detect-location", async (req, res) => {
     console.error("❌ Error processing NLP:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-});
+})
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {

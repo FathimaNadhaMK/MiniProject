@@ -84,6 +84,7 @@ function LocalNews() {
 
   // List of RSS Feed URLs
   const RSS_FEED_URLS = [
+    "https://newschannelthrissur.com/feed/",
     "https://www.thehindu.com/rssfeeds",
     "https://www.mathrubhumi.com/rss-feed-1.7275970",
     "https://www.onmanorama.com/rss.html",
