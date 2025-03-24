@@ -183,7 +183,7 @@ function Home() {
           🌦️ Weather
         </button>
         <button onClick={() => navigate("/NearbyPlacesMap")}>📍 Nearby Places</button>
-        <button onClick={() => navigate("/EmegencyAlert")}>⚠️ Emergency Alerts</button>
+        <button onClick={() => navigate("/Emergency")}>⚠️ Emergency Alerts</button>
        
         <button onClick={() => navigate("/AnnouncementPage")}>
           📢 Announcements

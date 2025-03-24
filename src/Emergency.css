@@ -1,0 +1,51 @@
+/* Modern weather UI styles */
+.container {
+    text-align: center;
+    padding: 20px;
+    font-family: "Arial", sans-serif;
+    background: #e3f2fd;
+    min-height: 100vh;
+  }
+  
+  .title {
+    color: #007bff;
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+  
+  .alert {
+    color: red;
+    font-weight: bold;
+  }
+  
+  .weather-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+    text-align: left;
+    max-width: 400px;
+  }
+  
+  .weather-card h2 {
+    color: #007bff;
+    text-align: center;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .icon {
+    color: #007bff;
+    margin-right: 10px;
+  }
+  
