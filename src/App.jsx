@@ -9,6 +9,7 @@ import LocalNews from "./LocalNews";
 import AnnouncementPage from "./AnnouncementPage";
 import Emergency from "./Emergency";
 
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   return (

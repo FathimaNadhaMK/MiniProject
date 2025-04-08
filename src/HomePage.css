@@ -1,10 +1,9 @@
-/* General container styles */
+/* Home Container */
 .home-container {
   margin: 0 auto;
   padding: 30px;
   font-family: 'Arial', sans-serif;
   text-align: center;
-
 }
 
 /* Navigation Bar */
@@ -31,7 +30,7 @@
   gap: 8px;
   text-align: center;
   box-shadow: 0 3px 5px rgba(0, 0, 0, 0.15);
-
+  transition: transform 0.2s ease;
 }
 
 .nav-bar button:hover {
@@ -45,32 +44,27 @@
   gap: 10px;
   padding: 20px;
   justify-content: center;
-  
+  flex-wrap: wrap;
+  position: relative;
 }
 
-.search-bar {
-  flex: 1;
-}
-
-.search-bar input {
-  width: 100%;
+.search-input {
   padding: 10px;
+  font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  font-size: 16px;
 }
 
-.barr button {
-  padding: 10px 15px;
-  font-size: 16px;
-  background: #28a745;
+.search-button {
+  background-color: #28a745;
   color: white;
   border: none;
+  padding: 10px 15px;
   cursor: pointer;
   border-radius: 5px;
 }
 
-.barr button:hover {
+.search-button:hover {
   background: #218838;
 }
 
@@ -85,7 +79,8 @@
 
 /* Left Column: Advertisement */
 .ad-box {
-  width: 300px;
+  flex-basis: 300px;
+  max-width: 360px;
   min-height: 200px;
   border: 1px solid #ccc;
   padding: 16px;
@@ -103,7 +98,8 @@
 
 /* Right Column: Announcements */
 .announcement-box {
-  width: 360px;
+  flex-basis: 360px;
+  max-width: 400px;
   min-height: 200px;
   border: 1px solid #ccc;
   padding: 16px;
@@ -118,46 +114,19 @@
   border-radius: 8px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
-  order: -1; /* Move the weather section to the left */
+  order: -1;
 }
 
-
-/* Weather Details */
-.weather-details {
-  margin-top: 10px;
-  font-size: 14px;
-  background: #e8e8e8;
-  padding: 10px;
-  border-radius: 5px;
-  color: black;
-}
-
-/* Weather Icon */
-.weather-summary img {
-  width: 60px;
-  height: 60px;
-}
-.weather-container{
-  padding-right: 1504px;
-}
-.weather-container h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #0a0a0a;
-  font-size: 35px;
-}
 /* Weather Container */
 .weather-container {
   text-align: center;
-  margin-right: 1500px;
   padding: 20px;
-  background: rgb(240 239 239 / 90%); /* Semi-transparent white background */
-  
+  background: rgba(240, 239, 239, 0.9);
 }
 
 .weather-container h2 {
   font-size: 24px;
-  color: #2c3e50; /* Dark text color */
+  color: #2c3e50;
   margin-bottom: 15px;
   font-weight: 600;
 }
@@ -180,20 +149,32 @@
   margin: 0;
   font-weight: 500;
 }
+
+.weather-details {
+  margin-top: 10px;
+  font-size: 14px;
+  background: #e8e8e8;
+  padding: 10px;
+  border-radius: 5px;
+  color: black;
+}
+
 /* Location Image */
 .location-image {
-  width: 500px;
-  height: 400px;
+  width: 100%;
+  max-width: 500px;
+  height: auto;
   object-fit: cover;
   border-radius: 20px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   padding: 20px;
   margin-top: 20px;
 }
 
 .location-image:hover {
-  transform: scale(1.01);
+  transform: scale(1.03);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
 }
 
 /* Location Text */
@@ -253,83 +234,57 @@
   text-decoration: none;
 }
 
-/* Search Box Styling */
-.search-container {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  position: absolute;
-  top: 120px;
-  right: 10px;
-}
-
-.search-input {
-  padding: 5px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.search-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.search-button:hover {
-  background-color: #0056b3;
+.news-article a:hover {
+  text-decoration: underline;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
   .nav-bar {
-      justify-content: center;
+    justify-content: center;
   }
 
   .nav-bar button {
-      padding: 5px 10px;
-      font-size: 14px;
+    padding: 5px 10px;
+    font-size: 14px;
   }
 
   .layout-container {
-      flex-direction: column;
-      align-items: center;
+    flex-direction: column;
+    align-items: center;
   }
 
   .location-text {
-      font-size: 2rem;
+    font-size: 2rem;
   }
 
   .description {
-      font-size: 1rem;
-      text-align: center;
+    font-size: 1rem;
+    text-align: center;
   }
 
   .wiki-info {
-      font-size: 1rem;
+    font-size: 1rem;
   }
 
   .location-image {
-      height: 300px;
+    height: auto;
   }
 
   .weather-sidebar {
-      width: 100%;
-      order: 0;
+    width: 100%;
+    order: 0;
   }
 
   .search-container {
-      position: relative;
-      top: auto;
-      right: auto;
-      justify-content: center;
-      flex-direction: column;
+    position: relative;
+    top: auto;
+    right: auto;
+    justify-content: center;
+    flex-direction: column;
   }
 
   .news-section {
-      width: 100%;
+    width: 100%;
   }
 }

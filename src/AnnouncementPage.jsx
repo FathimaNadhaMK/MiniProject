@@ -4,15 +4,20 @@ const AnnouncementPage = () => {
   const [query, setQuery] = useState("");
   const [announcements, setAnnouncements] = useState([]);
   const [filteredAnnouncements, setFilteredAnnouncements] = useState([]);
-  const [savedAnnouncements, setSavedAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ws, setWs] = useState(null);
 
-  // ✅ Fetch announcements from backend
-  const fetchAnnouncements = async () => {
+  // ✅ Fetch announcements from backend (Supports Search)
+  const fetchAnnouncements = async (searchQuery = "") => {
     try {
-      const response = await fetch("http://localhost:5000/announcements");
+      setLoading(true);
+      const url = searchQuery
+        ? `http://localhost:5001/announcements?search=${encodeURIComponent(searchQuery)}`
+        : "http://localhost:5001/announcements";
+
+      const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch announcements");
+
       const data = await response.json();
       setAnnouncements(data);
       setFilteredAnnouncements(data);
@@ -23,9 +28,11 @@ const AnnouncementPage = () => {
     }
   };
 
-  // ✅ Connect to WebSocket
+  // ✅ WebSocket Connection
   const connectWebSocket = () => {
-    const newWs = new WebSocket("ws://localhost:5001");
+    if (ws) return; // Prevent multiple connections
+
+    const newWs = new WebSocket("ws://localhost:5002");
 
     newWs.onopen = () => console.log("🔗 WebSocket Connected");
     newWs.onerror = (error) => console.error("❌ WebSocket Error:", error);
@@ -42,21 +49,12 @@ const AnnouncementPage = () => {
     connectWebSocket();
 
     return () => {
-      if (ws) ws.close();
+      if (ws) {
+        ws.close();
+        setWs(null);
+      }
     };
   }, []);
-
-  useEffect(() => {
-    if (!query.trim()) {
-      setFilteredAnnouncements(announcements);
-      return;
-    }
-    const filtered = announcements.filter((announcement) =>
-      announcement.title.toLowerCase().includes(query.toLowerCase()) ||
-      (announcement.description?.toLowerCase() || "").includes(query.toLowerCase())
-    );
-    setFilteredAnnouncements(filtered);
-  }, [query, announcements]);
 
   return (
     <div style={{ fontFamily: "'Fira Sans', sans-serif", maxWidth: "800px", margin: "40px auto", padding: "20px", backgroundColor: "#f5f5f5" }}>
@@ -73,7 +71,7 @@ const AnnouncementPage = () => {
           style={{ padding: "10px", fontSize: "16px", width: "70%", borderRadius: "4px", border: "1px solid #ddd", marginRight: "10px" }}
         />
         <button
-          onClick={() => setFilteredAnnouncements(announcements.filter(a => a.title.toLowerCase().includes(query.toLowerCase())))}
+          onClick={() => fetchAnnouncements(query)}
           style={{ padding: "10px 20px", width: "160px", height: "60px", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "18px", background: "#ff9800", color: "#fff" }}
         >
           🔍 Search
@@ -85,10 +83,12 @@ const AnnouncementPage = () => {
           <p>Loading announcements...</p>
         ) : filteredAnnouncements.length > 0 ? (
           filteredAnnouncements.map((announcement) => (
-            <div key={announcement.id} style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
+            <div key={announcement._id || announcement.id} style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
               <h3>{announcement.title}</h3>
-              <p>{announcement.description}</p>
-              <a href={announcement.link} target="_blank" rel="noopener noreferrer">Read More</a>
+              <p>{announcement.description || "No description available."}</p>
+              {announcement.link && (
+                <a href={announcement.link} target="_blank" rel="noopener noreferrer">Read More</a>
+              )}
             </div>
           ))
         ) : (

@@ -7,6 +7,7 @@ function LocalNews() {
   const { state: routerState } = useLocation();
   // Get the location and coordinates passed from homepage (if available)
   const { location: fetchedLocation, lat, lon } = routerState || {};
+  const [malayalamLocationName, setMalayalamLocationName] = useState(null);
 
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -141,7 +142,7 @@ function LocalNews() {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const threeDaysAgo = new Date(today);
-          threeDaysAgo.setDate(today.getDate() - 3);
+          threeDaysAgo.setDate(today.getDate() - 30);
   
           if (pubDate >= threeDaysAgo && pubDate <= today) {
             allNews.push({ title, description, pubDate: pubDateStr, imageUrl, link });
@@ -176,34 +177,40 @@ function LocalNews() {
 
   // Filter news articles by matching location keywords using backend NLP API
   const filterNewsByLocation = async (newsList, userLocation) => {
-    if (!userLocation) {
-      console.log("❌ User location not detected. Showing general news.");
-      setNews(newsList.slice(0, 10));
-      setLoading(false);
-      return;
-    }
-    
-    // Load cached news (if available) without waiting
-    fetch(`http://localhost:5001/news?location=${encodeURIComponent(fetchedLocation)}`)
-      .then((res) => res.json())
-      .then((cachedData) => {
+    // ADDED: Try fetching cached news directly from MongoDB to reduce delay
+    const cachedNewsFetched = await (async () => {
+      try {
+        const res = await fetch(`http://localhost:5001/news?location=${encodeURIComponent(fetchedLocation)}`);
+        const cachedData = await res.json();
         if (cachedData.news && cachedData.news.length > 0) {
           setNews(cachedData.news);
           setLoading(false);
+          return true;
         }
-        // Trigger background refresh (fire and forget)
-        fetch(`http://localhost:5001/refresh-news?location=${encodeURIComponent(fetchedLocation)}`);
-      })
-      .catch((error) => {
+        return false;
+      } catch (error) {
         console.error("❌ Error fetching cached news:", error);
-      });
-    
+        return false;
+      }
+    })();
+    if (cachedNewsFetched) return;
+    // END ADDED
+
     const englishLocation = userLocation.toLowerCase();
     // Fetch location variants from backend
     const variantRes = await fetch(`http://localhost:5001/get-location-variants/${englishLocation}`);
     const variantData = await variantRes.json();
-    let locationVariants = variantData.variants.map((variant) => variant.toLowerCase());
+   // let locationVariants = variantData.variants.map((variant) => variant.toLowerCase());
     // Add nearby places, if any
+    const allVariants = variantData.variants;
+let locationVariants = allVariants.map((variant) => variant.toLowerCase());
+
+// Try to extract a Malayalam version (heuristic: Unicode range)
+const malayalamVariant = allVariants.find((variant) =>
+  /[\u0D00-\u0D7F]/.test(variant)
+);
+setMalayalamLocationName(malayalamVariant || locationName);
+
     locationVariants = locationVariants.concat(nearbyPlaces.map((place) => place.toLowerCase()));
     
     console.log("🔎 Filtering news for:", locationVariants);
@@ -258,7 +265,9 @@ function LocalNews() {
 
   return (
     <div className="local-news-container">
-      <h1>📰 {locationName}ലെ ഏറ്റവും പുതിയ വാർത്തകൾ</h1>
+ <h1>📰 ഏറ്റവും പുതിയ വാർത്തകൾ </h1> 
+  <h1> 📍{malayalamLocationName}</h1>
+
       {loading ? <p>🔄 വാർത്തകൾ ലോഡുചെയ്യുന്നു...</p> : null}
       <div className="news-list">
         {news.length > 0 ? (
@@ -278,7 +287,7 @@ function LocalNews() {
                 }
               />
               <h2>{article.title}</h2>
-              <p>{article.description}</p>
+             <p>{article.description}</p>
               <p className="news-date">📅 {article.pubDate}</p>
             </div>
           ))

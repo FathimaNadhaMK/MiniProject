@@ -73,13 +73,54 @@ function Login() {
       <header className="header">
         <h1 className="logo">LocalStream</h1>
         <div className="header-buttons">
-          <Link to="/login" className="header-btn">Login</Link>
+         
           <Link to="/signup" className="header-btn">Sign Up</Link>
-          <button className="header-btn" onClick={() => document.getElementById("project-info").scrollIntoView({ behavior: "smooth" })}>About</button>
-        </div>
+          <button className="header-btn" onClick={() => document.getElementById("container").scrollIntoView({behavior:"smooth"})}>Login</button>
+           </div>
       </header>
+      <div className="projj">
+  <div className="project-info" id="project-info">
+    <h2>
+      <em>Get the most out of</em> <br />
+      your neighborhood with <strong>LocalStream</strong>
+    </h2>
+    <p>
+      <strong>
+        LocalStream is a hyperlocal platform crafted for communities that want to stay connected and informed. With support for the Malayalam language, LocalStream delivers real-time updates — from local news and community announcements to tourist spot guides, emergency alerts, and even live traffic updates. <br /><br />
+        Simply enter your city name to explore a personalized feed about your surroundings, ensuring you never miss what matters nearby.
+      </strong>
+    </p>
 
-      <div className="container">
+    <div className="features">
+      <div className="feature">
+        <img src="/icon-news.png" alt="News Icon" />
+        <h3>Localized News</h3>
+        <p>Get city-specific news and updates in Malayalam from reliable sources.</p>
+      </div>
+      <div className="feature">
+        <img src="/icon-location.png" alt="Tourism Icon" />
+        <h3>Nearby Info</h3>
+        <p>Discover nearby tourist places, alerts, and traffic updates in real time.</p>
+      </div>
+      <div className="feature">
+        <img src="/icon-announcement.png" alt="Announcement Icon" />
+        <h3>Community Alerts</h3>
+        <p>Emergency updates, public announcements, and local advertisements — all in one place.</p>
+      </div>
+    </div>
+
+    <div className="cta">
+      <h3>
+        <em>Instantly connect with your neighborhood</em>
+      </h3>
+      <button className="cta-button" onClick={() => navigate("/signup")}>
+        Sign Up
+      </button>
+    </div>
+  </div>
+</div>
+
+      <div className="container" id="container">
         <div className='background-wrapper'>
           <form onSubmit={handleSubmit} className="responsive-form">
             <h2>What’s Latest In This Area</h2>
@@ -98,19 +139,7 @@ function Login() {
         </div>
       </div>
 
-      <div className="project-info" id="project-info">
-        <h2><em>Get the most out of</em> <br /> your neighborhood with <strong>LocalStream</strong></h2>
-        <p>"LocalStream is your go-to platform for staying informed about everything happening in your community." 🚀</p>
-        <div className="features">
-          <div className="feature"><img src="/icon-news.png" alt="News Icon" /><h3>Essential</h3><p>Relevant news from neighbors, businesses, and local sources.</p></div>
-          <div className="feature"><img src="/icon-location.png" alt="Location Icon" /><h3>Local</h3><p>Instantly connect to events and updates near your home.</p></div>
-          <div className="feature"><img src="/icon-announcement.png" alt="Trust Icon" /><h3>Trusted</h3><p>Reliable platform with verified information.</p></div>
-        </div>
-        <div className='cta'>
-          <h3><em>Instantly connect with your neighborhood</em></h3>
-          <button className="cta-button" onClick={() => navigate("/signup")}>Sign Up</button>
-        </div>
-      </div>
+     
 
       <footer className="footer">
         <div className="footer-box">

@@ -4,12 +4,20 @@ import { NlpManager } from "node-nlp";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import LocationData from "./models/LocationData.js";
+import { WebSocketServer } from "ws";
+import Parser from "rss-parser";
+import Announcement from "./models/Announcement.js";
+
+
+
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-
+const parser = new Parser();
+const WS_PORT = process.env.WS_PORT || 5002;
+const wss = new WebSocketServer({ port: WS_PORT });
 // ✅ Connect to MongoDB Atlas
 const MONGO_URI = process.env.MONGO_URI;
 mongoose
@@ -27,8 +35,43 @@ const locationSchema = new mongoose.Schema({
   detectedLocations: [String],
   timestamp: { type: Date, default: Date.now },
 });
+const announcementSchema = new mongoose.Schema({
+  id: String,
+  title: String,
+  description: String,
+  date: String,
+  link: String,
+});
 
+const RSS_FEEDS = [
+  "https://go.lsgkerala.gov.in/pages/rss.php",
+  "https://www.pib.gov.in/PressReleaseRSS.aspx",
+  "https://www.india.gov.in/rss/india/news.rss"
+];
 //const LocationData = mongoose.model("LocationData", locationSchema); // Use the schema to create the model
+
+const fetchRSSNews = async () => {
+  try {
+    for (const url of RSS_FEEDS) {
+      const feed = await parser.parseURL(url);
+      feed.items.forEach(async (item) => {
+        const existing = await Announcement.findOne({ id: item.guid || item.link });
+        if (!existing) {
+          await Announcement.create({
+            id: item.guid || item.link,
+            title: item.title,
+            description: item.contentSnippet || "No description available.",
+            date: item.pubDate || new Date().toISOString(),
+            link: item.link,
+          });
+        }
+      });
+    }
+    console.log("✅ RSS News Updated");
+  } catch (error) {
+    console.error("❌ RSS Fetch Error:", error);
+  }
+};
 
 const manager = new NlpManager({
   languages: ["en", "ml"],
@@ -113,6 +156,7 @@ async function trainNLP() {
     ["pinarayi vijayan", "Pinarayi Vijayan", "പിണറായി വിജയൻ"],
     ["kk george", "KK George", "കെ.കെ. ജോർജ്"],
     ["m k stalin", "M.K. Stalin", "എം.കെ. സ്റ്റാലിൻ"],
+    ["Poonjar MLA","poonjar MLA","പൂഞ്ഞാർ എം എൽ എ"],
     ["poonjar MLA adv sebastin koluthingal", "poonjar MLA adv sebastin koluthingal", "പൂഞ്ഞാർ എംഎൽഎ അഡ്വ. സെബാസ്റ്റ്യൻ കുളത്തुङ്കൽ"],
     // Additional person training examples
     ["v s achuthanandan", "V S Achuthanandan", "വി എസ് അച്യുതാനന്ദൻ"],
@@ -143,6 +187,7 @@ trainNLP().then(() => console.log("✅ NLP Model Trained")).catch(console.error)
 
 // ✅ Endpoint for Getting Location Variants
 const locationMapping = {
+  
   // Your location mapping data here...
   pala:["pala","Pala","പാല"],
   pulamanthole: ["pulamanthole", "Pulamanthole", "പുലാമന്തോൾ"],
@@ -213,6 +258,86 @@ const locationMapping = {
   upputhara: ["upputhara", "Upputhara", "ഉപ്പുതറ"],
   peruvanthanam: ["peruvanthanam", "Peruvanthanam", "പെരുവന്താനം"],
   idukki: ["idukki", "Idukki", "ഇടുക്കി"],
+    Akalakunnam: ["akalakunnam", "Akalakunnam", "അകലകുന്നം"],
+    Anickad: ["anickad", "Anickad", "അനിക്കാട്"],
+    Arpookara: ["arpookara", "Arpookara", "ആർപ്പൂക്കര"],
+    Athirampuzha: ["athirampuzha", "Athirampuzha", "അതിരമ്പുഴ"],
+    Aymanam: ["aymanam", "Aymanam", "അയ്മനം"],
+    Ayarkunnam: ["ayarkunnam", "Ayarkunnam", "അയർക്കുന്നം"],
+    Bharananganam: ["bharananganam", "Bharananganam", "ഭരണങ്ങാനം"],
+    Changanassery: ["changanassery", "Changanassery", "ചങ്ങനാശ്ശേരി"],
+    Cheruvally: ["cheruvally", "Cheruvally", "ചെറുവള്ളി"],
+    "Chengalam East": ["chengalam east", "Chengalam East", "ചെങ്ങളം ഈസ്റ്റ്"],
+    "Chengalam South": ["chengalam south", "Chengalam South", "ചെങ്ങളം സൗത്ത്"],
+    Chirakkadavu: ["chirakkadavu", "Chirakkadavu", "ചിറക്കടവ്"],
+    Edakkunnam: ["edakkunnam", "Edakkunnam", "എടക്കുന്നം"],
+    Elackad: ["elackad", "Elackad", "ഇലക്കാട്"],
+    Elamgulam: ["elamgulam", "Elamgulam", "ഏലംഗുളം"],
+    Elikkulam: ["elikkulam", "Elikkulam", "എളിക്കുളം"],
+    Erumeli: ["erumeli", "Erumeli", "എരുമേലി"],
+    "Erumeli South": ["erumeli south", "Erumeli South", "എരുമേലി സൗത്ത്"],
+    Erattupetta: ["erattupetta", "Erattupetta", "ഈരാറ്റുപേട്ട"],
+    Ettumanoor: ["ettumanoor", "Ettumanoor", "എട്ടുമാനൂർ"],
+    Kadanad: ["kadanad", "Kadanad", "കടനാട്"],
+    Kadaplamattom: ["kadaplamattom", "Kadaplamattom", "കടപ്ലാമറ്റം"],
+    Kaipuzha: ["kaipuzha", "Kaipuzha", "കൈപ്പുഴ"],
+    Kanakkary: ["kanakkary", "Kanakkary", "കനക്കരി"],
+    Kangazha: ["kangazha", "Kangazha", "കങ്ങഴ"],
+    Kanjirappally: ["kanjirappally", "Kanjirappally", "കാഞ്ഞിരപ്പള്ളി"],
+    Karukachal: ["karukachal", "Karukachal", "കരുകച്ചാൽ"],
+    Kidangoor: ["kidangoor", "Kidangoor", "കിടങ്ങൂർ"],
+    Koottickal: ["koottickal", "Koottickal", "കൂട്ടിക്കൽ"],
+    Koovappally: ["koovappally", "Koovappally", "കൂവപ്പള്ളി"],
+    Koruthodu: ["koruthodu", "Koruthodu", "കൊരുത്തോട്"],
+    Kooroppada: ["kooroppada", "Kooroppada", "കൂരോപ്പട"],
+    Kottayam: ["kottayam", "Kottayam", "കോട്ടയം"],
+    Kumarakom: ["kumarakom", "Kumarakom", "കുമരകം"],
+    Kuravilangad: ["kuravilangad", "Kuravilangad", "കുറവിലങ്ങാട്"],
+    Kurichy: ["kurichy", "Kurichy", "കുറിച്ചി"],
+    Kurichithanam: ["kurichithanam", "Kurichithanam", "കുറിച്ചിതാനം"],
+    Lalam: ["lalam", "Lalam", "ലാളം"],
+    Madappally: ["madappally", "Madappally", "മടപ്പള്ളി"],
+    Manarcad: ["manarcad", "Manarcad", "മണർകാട്"],
+    Manimala: ["manimala", "Manimala", "മണിമല"],
+    Meenachil: ["meenachil", "Meenachil", "മീനച്ചിൽ"],
+    Meenadam: ["meenadam", "Meenadam", "മീനടം"],
+    Melukavu: ["melukavu", "Melukavu", "മേലുകാവ്"],
+    Monippally: ["monippally", "Monippally", "മോണിപ്പള്ളി"],
+    Moonilavu: ["moonilavu", "Moonilavu", "മൂണിലാവ്"],
+    Mundakkayam: ["mundakkayam", "Mundakkayam", "മുണ്ടക്കയം"],
+    Muttambalam: ["muttambalam", "Muttambalam", "മുട്ടമ്പലം"],
+    Nattakom: ["nattakom", "Nattakom", "നാട്ടകം"],
+    Nedumkunnam: ["nedumkunnam", "Nedumkunnam", "നെടുംകുന്നം"],
+    Onamthuruthu: ["onamthuruthu", "Onamthuruthu", "ഓണംതുരുത്ത്"],
+    Pala: ["pala", "Pala", "പാല"],
+    Panachikkad: ["panachikkad", "Panachikkad", "പനച്ചിക്കാട്"],
+    Panackapalam: ["panackapalam", "Panackapalam", "പനക്കപലം"],
+    Pampady: ["pampady", "Pampady", "പാമ്പാടി"],
+    Payippad: ["payippad", "Payippad", "പായിപ്പാട്"],
+    Peroor: ["peroor", "Peroor", "പേരൂർ"],
+    Perumbaikad: ["perumbaikad", "Perumbaikad", "പെരുമ്പൈക്കാട്"],
+    Poovarany: ["poovarany", "Poovarany", "പൂവാരണി"],
+    Poonjar: ["poonjar", "Poonjar", "പൂഞ്ഞാർ"],
+    "Poonjar Nadubhagam": ["poonjar nadubhagam", "Poonjar Nadubhagam", "പൂഞ്ഞാർ നടുഭാഗം"],
+    "Poonjar Thekkekara": ["poonjar thekkekara", "Poonjar Thekkekara", "പൂഞ്ഞാർ തെക്കേക്കര"],
+    Puliyannoor: ["puliyannoor", "Puliyannoor", "പുലിയന്നൂർ"],
+    Puthuppally: ["puthuppally", "Puthuppally", "പുതുപ്പള്ളി"],
+    Ramapuram: ["ramapuram", "Ramapuram", "രാമപുരം"],
+    Teekoy: ["teekoy", "Teekoy", "തീക്കോയ്"],
+    Thalanadu: ["thalanadu", "Thalanadu", "തളനാട്"],
+    Thalappalam: ["thalappalam", "Thalappalam", "തളപ്പലം"],
+    Thiruvarppu: ["thiruvarppu", "Thiruvarppu", "തിരുവാർപ്പ്"],
+    Thottackad: ["thottackad", "Thottackad", "തോട്ടാക്കാട്"],
+    Vakathanam: ["vakathanam", "Vakathanam", "വാകത്താനം"],
+    Vaikom: ["vaikom", "Vaikom", "വൈക്കം"],
+    "Vazhappally East": ["vazhappally east", "Vazhappally East", "വഴപ്പള്ളി ഈസ്റ്റ്"],
+    "Vazhappally West": ["vazhappally west", "Vazhappally West", "വഴപ്പള്ളി വെസ്റ്റ്"],
+    Vazhoor: ["vazhoor", "Vazhoor", "വാഴൂർ"],
+    Vellavoor: ["vellavoor", "Vellavoor", "വെള്ളവൂർ"],
+    Veloor: ["veloor", "Veloor", "വെളൂർ"],
+    Vijayapuram: ["vijayapuram", "Vijayapuram", "വിജയപുരം"]
+  
+  
 
 
 };
@@ -276,8 +401,34 @@ app.post("/detect-location", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 })
+app.get("/announcements", async (req, res) => {
+  try {
+    console.log("📢 Fetching announcements...");
+    const announcements = await Announcement.find().sort({ date: -1 }).limit(20);
+    console.log("✅ Announcements fetched:", announcements.length);
+    res.json(announcements);
+  } catch (error) {
+    console.error("❌ Fetch Error in /announcements:", error);
+    res.status(500).json({ error: "Failed to fetch announcements", details: error.message });
+  }
+});
+fetch("http://localhost:5001/announcements")
+  .then((res) => res.json())
+  .then((data) => {
+    console.log("Fetched Announcements:", data);  // Debugging step
+    Announcement(data);
+  })
+  .catch((error) => console.error("Fetch error:", error));
 
+
+wss.on("connection", (ws) => {
+  console.log("🔗 WebSocket Connected");
+  ws.on("message", (message) => console.log("📩 Received:", message));
+  ws.on("close", () => console.log("⚠️ WebSocket Disconnected"));
+});
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`✅ NLP Location API running on http://localhost:${PORT}`);
 });
+
+export { wss };
