@@ -1,0 +1,333 @@
+/* Card container */
+.location-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  height: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: var(--card-bg);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.location-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Image container */
+.card-image-container {
+  position: relative;
+  height: 12rem;
+  width: 100%;
+  background-color: var(--border-light);
+  overflow: hidden;
+}
+
+/* Standard image */
+.standard-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease, transform 0.5s ease;
+  opacity: 0.7;
+}
+
+.standard-image.loaded {
+  opacity: 1;
+}
+
+.location-card:hover .standard-image.loaded {
+  transform: scale(1.05);
+}
+
+.image-loading-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--border-light) 0%, var(--badge-bg) 50%, var(--border-light) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  z-index: 1;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Image search button */
+.image-search-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  opacity: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.card-image-container:hover .image-search-button {
+  opacity: 1;
+}
+
+.image-search-button:hover {
+  transform: scale(1.1);
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.image-search-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--primary-color);
+}
+
+/* Text button for image search */
+.image-search-text-button {
+  display: flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--primary-color);
+  border-radius: 0.25rem;
+  background-color: transparent;
+  color: var(--primary-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.image-search-text-button:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.image-search-text-button .icon-small {
+  margin-right: 0.25rem;
+}
+
+/* Image error state */
+.image-error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  background-color: var(--border-light);
+  color: var(--text-muted);
+}
+
+.image-error-icon {
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.7;
+}
+
+/* Card header */
+.card-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0 0 0.5rem 0;
+}
+
+.card-address {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.icon-small {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
+}
+
+/* Card content */
+.card-content {
+  padding: 1rem;
+  flex-grow: 1;
+}
+
+.card-description {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.category-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  background-color: var(--badge-bg);
+  border-radius: 0.25rem;
+  color: var(--badge-text);
+}
+
+/* Card footer */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.distance-indicator {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.view-more-button {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-more-button:hover {
+  background-color: var(--badge-bg);
+  transform: translateY(-1px);
+}
+
+.view-more-button:active {
+  transform: translateY(0);
+}
+
+.directions-button {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--primary-color);
+  border-radius: 0.25rem;
+  background-color: var(--primary-color);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.directions-button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.directions-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.directions-button .icon-small {
+  margin-right: 0.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .card-image-container {
+    height: 10rem;
+  }
+
+  .card-title {
+    font-size: 1.125rem;
+  }
+
+  .card-content,
+  .card-header,
+  .card-footer {
+    padding: 0.75rem;
+  }
+
+  .image-search-button {
+    opacity: 1; /* Always visible on mobile */
+    top: 0.375rem;
+    right: 0.375rem;
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .card-actions {
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .image-search-text-button,
+  .view-more-button,
+  .directions-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .image-search-button {
+    background-color: rgba(31, 41, 55, 0.9);
+  }
+
+  .image-search-button:hover {
+    background-color: rgba(31, 41, 55, 1);
+  }
+
+  .image-search-icon {
+    color: #60a5fa;
+  }
+
+  .image-search-text-button {
+    border-color: #60a5fa;
+    color: #60a5fa;
+  }
+
+  .image-search-text-button:hover {
+    background-color: rgba(96, 165, 250, 0.1);
+  }
+}
