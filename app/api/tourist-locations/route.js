@@ -1,0 +1,1558 @@
+import { NextResponse } from "next/server"
+
+// API key for Geoapify
+const API_KEY = "e43c6e276b2d4f7eae552ce3afad8caf"
+
+// Categories of places we want to fetch - expanded list with Kerala-specific attractions
+const TOURIST_CATEGORIES = [
+  "tourism.attraction",
+  "tourism.sights",
+  "tourism.museum",
+  "natural.park",
+  "natural.beach",
+  "natural.water",
+  "natural.peak",
+  "entertainment.culture",
+  "entertainment.theme_park",
+  "catering.restaurant",
+  "accommodation.hotel",
+  "commercial.shopping_mall",
+  "heritage.historic",
+  "religion.place_of_worship",
+  "leisure.park",
+  "tourism.viewpoint",
+  "natural.forest",
+  "natural.water.lake",
+  "natural.water.river",
+  "natural.wetland",
+  "tourism.information",
+  "heritage.monument",
+  "religion.temple",
+  "religion.church",
+]
+
+// Malayalam descriptions for when API doesn't provide enough details
+const FALLBACK_DESCRIPTIONS = {
+  "tourism.attraction": "ഈ ടൂറിസ്റ്റ് ആകർഷണം സന്ദർശകർക്ക് ഒരു മികച്ച അനുഭവം നൽകുന്നു.",
+  "tourism.sights": "ഈ പ്രദേശത്തിന്റെ സൗന്ദര്യം ആസ്വദിക്കാൻ ഒരു മികച്ച സ്ഥലം.",
+  "tourism.museum": "ഈ മ്യൂസിയം സന്ദർശകർക്ക് ചരിത്രവും സംസ്കാരവും പഠിക്കാൻ അവസരം നൽകുന്നു.",
+  "natural.park": "ഈ പാർക്ക് പ്രകൃതിയുടെ സൗന്ദര്യം ആസ്വദിക്കാൻ ഒരു മികച്ച സ്ഥലമാണ്.",
+  "natural.beach": "ഈ കടൽത്തീരം സന്ദർശകർക്ക് വിശ്രമിക്കാനും ആസ്വദിക്കാനും ഒരു മികച്ച സ്ഥലമാണ്.",
+  "catering.restaurant": "ഈ റെസ്റ്റോറന്റ് സന്ദർശകർക്ക് രുചികരമായ ഭക്ഷണം നൽകുന്നു.",
+  "accommodation.hotel": "ഈ ഹോട്ടൽ സന്ദർശകർക്ക് സുഖകരമായ താമസ സൗകര്യം നൽകുന്നു.",
+  "commercial.shopping_mall": "ഈ ഷോപ്പിംഗ് മാൾ സന്ദർശകർക്ക് ഷോപ്പിംഗ് അനുഭവം നൽകുന്നു.",
+  "heritage.historic": "ഈ ചരിത്ര സ്ഥലം സന്ദർശകർക്ക് പ്രദേശത്തിന്റെ പാരമ്പര്യം അറിയാൻ അവസരം നൽകുന്നു.",
+  "religion.place_of_worship": "ഈ ആരാധനാലയം സന്ദർശകർക്ക് ആത്മീയ അനുഭവം നൽകുന്നു.",
+  "leisure.park": "ഈ പാർക്ക് സന്ദർശകർക്ക് വിനോദത്തിനും വിശ്രമത്തിനും അവസരം നൽകുന്നു.",
+  "tourism.viewpoint": "ഈ വ്യൂപോയിന്റിൽ നിന്ന് മനോഹരമായ കാഴ്ച കാണാൻ സാധിക്കും.",
+  "natural.forest": "ഈ വനം പ്രകൃതിയുടെ സൗന്ദര്യം ആസ്വദിക്കാൻ ഒരു മികച്ച സ്ഥലമാണ്.",
+  "natural.water.lake": "ഈ തടാകം സന്ദർശകർക്ക് പ്രകൃതിയുടെ സൗന്ദര്യം ആസ്വദിക്കാൻ അവസരം നൽകുന്നു.",
+  "natural.water.river": "ഈ നദി സന്ദർശകർക്ക് പ്രകൃതിയുടെ സൗന്ദര്യം ആസ്വദിക്കാൻ അവസരം നൽകുന്നു.",
+  "religion.temple": "ഈ ക്ഷേത്രം സന്ദർശകർക്ക് ആത്മീയ അനുഭവം നൽകുന്നു.",
+  "religion.church": "ഈ പള്ളി സന്ദർശകർക്ക് ആത്മീയ അനുഭവം നൽകുന്നു.",
+  "heritage.monument": "ഈ സ്മാരകം സന്ദർശകർക്ക് ചരിത്രപരമായ പ്രാധാന്യം മനസ്സിലാക്കാൻ അവസരം നൽകുന്നു.",
+  default: "ഈ സ്ഥലം സന്ദർശിക്കാൻ വളരെ നല്ല ഒരു ടൂറിസ്റ്റ് കേന്ദ്രമാണ്.",
+}
+
+// Function to get a fallback description based on category
+function getFallbackDescription(categories) {
+  for (const category of categories) {
+    if (FALLBACK_DESCRIPTIONS[category]) {
+      return FALLBACK_DESCRIPTIONS[category]
+    }
+  }
+  return FALLBACK_DESCRIPTIONS.default
+}
+
+// Comprehensive database of Kerala tourist attractions by district
+const KERALA_ATTRACTIONS_BY_DISTRICT = {
+  Thiruvananthapuram: [
+    {
+      name: "ശ്രീ പത്മനാഭസ്വാമി ക്ഷേത്രം",
+      description: "കേരളത്തിലെ പ്രധാന ക്ഷേത്രങ്ങളിൽ ഒന്നായ ഈ ക്ഷേത്രം ആർക്കിടെക്ചറൽ സവിശേഷതകൾക്കും ചരിത്രപരമായ പ്രാധാന്യത്തിനും പേരുകേട്ടതാണ്.",
+      address: "തിരുവനന്തപുരം, കേരളം",
+      categories: ["temple", "historic", "religion"],
+      lat: 8.4827,
+      lon: 76.9428,
+    },
+    {
+      name: "പൂവാർ ദ്വീപ്",
+      description: "മനോഹരമായ ദ്വീപ്, കായലുകളും കടലും സംഗമിക്കുന്ന സ്ഥലം.",
+      address: "പൂവാർ, തിരുവനന്തപുരം, കേരളം",
+      categories: ["island", "backwaters", "nature"],
+      lat: 8.3219,
+      lon: 77.055,
+    },
+    {
+      name: "കോവളം ബീച്ച്",
+      description: "തിരുവനന്തപുരത്തിന് സമീപമുള്ള മനോഹരമായ കടൽത്തീരം, സൂര്യാസ്തമയ കാഴ്ചകൾക്ക് പ്രസിദ്ധമാണ്.",
+      address: "കോവളം, തിരുവനന്തപുരം, കേരളം",
+      categories: ["beach", "sunset", "water"],
+      lat: 8.3988,
+      lon: 76.9781,
+    },
+    {
+      name: "മാജിക് പ്ലാനറ്റ് തീം പാർക്ക്",
+      description: "കുടുംബങ്ങൾക്ക് ആസ്വദിക്കാൻ പറ്റിയ വിനോദ പാർക്ക്.",
+      address: "കഴക്കൂട്ടം, തിരുവനന്തപുരം, കേരളം",
+      categories: ["theme_park", "entertainment", "family"],
+      lat: 8.5623,
+      lon: 76.8846,
+    },
+    {
+      name: "അട്ടുകാൽ ഭഗവതി ക്ഷേത്രം",
+      description: "പ്രശസ്തമായ ദേവീ ക്ഷേത്രം, പൊങ്കാല ഉത്സവത്തിന് പേരുകേട്ടതാണ്.",
+      address: "അട്ടുകാൽ, തിരുവനന്തപുരം, കേരളം",
+      categories: ["temple", "religion", "festival"],
+      lat: 8.4785,
+      lon: 76.9467,
+    },
+    {
+      name: "അക്കുളം ടൂറിസ്റ്റ് വില്ലേജ്",
+      description: "വിനോദത്തിനും വിശ്രമത്തിനും അനുയോജ്യമായ സ്ഥലം.",
+      address: "അക്കുളം, തിരുവനന്തപുരം, കേരളം",
+      categories: ["recreation", "lake", "park"],
+      lat: 8.5107,
+      lon: 76.9125,
+    },
+    {
+      name: "കുതിരമാലിക പാലസ് മ്യൂസിയം",
+      description: "ചരിത്രപരമായ കൊട്ടാരം, കലാസൃഷ്ടികളും പുരാവസ്തുക്കളും പ്രദർശിപ്പിക്കുന്നു.",
+      address: "തിരുവനന്തപുരം, കേരളം",
+      categories: ["museum", "palace", "historic"],
+      lat: 8.4816,
+      lon: 76.9428,
+    },
+    {
+      name: "വലിയതുറ ബീച്ച്",
+      description: "പ്രാദേശിക ജീവിതം അനുഭവിക്കാൻ പറ്റിയ കടൽത്തീരം.",
+      address: "വലിയതുറ, തിരുവനന്തപുരം, കേരളം",
+      categories: ["beach", "fishing", "local"],
+      lat: 8.4803,
+      lon: 76.9127,
+    },
+    {
+      name: "ബീമാപള്ളി മോസ്ക്",
+      description: "പ്രശസ്തമായ മുസ്ലിം ആരാധനാലയം.",
+      address: "ബീമാപള്ളി, തിരുവനന്തപുരം, കേരളം",
+      categories: ["mosque", "religion", "historic"],
+      lat: 8.4667,
+      lon: 76.9333,
+    },
+    {
+      name: "തിരുവനന്തപുരം മൃഗശാല",
+      description: "ഇന്ത്യയിലെ പഴക്കമേറിയ മൃഗശാലകളിൽ ഒന്ന്, വിവിധ ജീവികളെ കാണാം.",
+      address: "തിരുവനന്തപുരം, കേരളം",
+      categories: ["zoo", "wildlife", "education"],
+      lat: 8.5182,
+      lon: 76.9568,
+    },
+    {
+      name: "ശ്രീ ചിത്ര ആർട്ട് ഗാലറി",
+      description: "രാജാ രവി വർമ്മയുടെ ചിത്രങ്ങൾ ഉൾപ്പെടെയുള്ള കലാസൃഷ്ടികൾ പ്രദർശിപ്പിക്കുന്നു.",
+      address: "തിരുവനന്തപുരം, കേരളം",
+      categories: ["art_gallery", "culture", "museum"],
+      lat: 8.5097,
+      lon: 76.9499,
+    },
+    {
+      name: "നെയ്യാർ ഡാം",
+      description: "മനോഹരമായ ഡാം, ബോട്ടിംഗിനും പിക്നിക്കിനും അനുയോജ്യമാണ്.",
+      address: "നെയ്യാർ, തിരുവനന്തപുരം, കേരളം",
+      categories: ["dam", "boating", "nature"],
+      lat: 8.5003,
+      lon: 77.0887,
+    },
+  ],
+  Kollam: [
+    {
+      name: "ജടായു എർത്ത്സ് സെന്റർ",
+      description: "വിശാലമായ പക്ഷി ശിൽപ്പം, പ്രകൃതി ദൃശ്യങ്ങൾക്ക് പ്രസിദ്ധമാണ്.",
+      address: "ചടയമംഗലം, കൊല്ലം, കേരളം",
+      categories: ["sculpture", "viewpoint", "nature"],
+      lat: 8.8636,
+      lon: 76.8704,
+    },
+    {
+      name: "തങ്കശ്ശേരി ലൈറ്റ് ഹൗസ്",
+      description: "ചരിത്രപരമായ ലൈറ്റ് ഹൗസ്, മനോഹരമായ കാഴ്ചകൾ നൽകുന്നു.",
+      address: "തങ്കശ്ശേരി, കൊല്ലം, കേരളം",
+      categories: ["lighthouse", "historic", "viewpoint"],
+      lat: 8.8864,
+      lon: 76.7015,
+    },
+    {
+      name: "പാളരുവി വെള്ളച്ചാട്ടം",
+      description: "മനോഹരമായ വെള്ളച്ചാട്ടം, പ്രകൃതി ആസ്വദിക്കാൻ അനുയോജ്യമാണ്.",
+      address: "പാളരുവി, കൊല്ലം, കേരളം",
+      categories: ["waterfall", "nature", "picnic"],
+      lat: 9.0167,
+      lon: 77.1,
+    },
+    {
+      name: "കൊല്ലം ബീച്ച്",
+      description: "മനോഹരമായ കടൽത്തീരം, വിനോദത്തിനും വിശ്രമത്തിനും അനുയോജ്യമാണ്.",
+      address: "കൊല്ലം, കേരളം",
+      categories: ["beach", "recreation", "water"],
+      lat: 8.8821,
+      lon: 76.5961,
+    },
+    {
+      name: "ശാസ്താംകോട്ട തടാകം",
+      description: "കേരളത്തിലെ ഏക ശുദ്ധജല തടാകം, ബോട്ടിംഗിനും പിക്നിക്കിനും അനുയോജ്യമാണ്.",
+      address: "ശാസ്താംകോട്ട, കൊല്ലം, കേരളം",
+      categories: ["lake", "boating", "picnic"],
+      lat: 9.0333,
+      lon: 76.6333,
+    },
+    {
+      name: "തങ്കശ്ശേരി ബീച്ച്",
+      description: "ശാന്തമായ കടൽത്തീരം, ചരിത്രപരമായ പ്രാധാന്യമുണ്ട്.",
+      address: "തങ്കശ്ശേരി, കൊല്ലം, കേരളം",
+      categories: ["beach", "historic", "water"],
+      lat: 8.8833,
+      lon: 76.7,
+    },
+    {
+      name: "തെന്മല ഇക്കോ ടൂറിസം",
+      description: "വനമേഖലയും ഇക്കോ ടൂറിസം കേന്ദ്രവും.",
+      address: "തെന്മല, കൊല്ലം, കേരളം",
+      categories: ["forest", "eco_tourism", "nature"],
+      lat: 8.9107,
+      lon: 77.0654,
+    },
+    {
+      name: "അഷ്ടമുടി കായൽ",
+      description: "കേരളത്തിലെ രണ്ടാമത്തെ വലിയ കായൽ, ഹൗസ്ബോട്ട് യാത്രകൾക്ക് പ്രസിദ്ധമാണ്.",
+      address: "കൊല്ലം, കേരളം",
+      categories: ["backwaters", "houseboat", "water"],
+      lat: 9.0227,
+      lon: 76.5662,
+    },
+    {
+      name: "ഷെന്തുരുണി വന്യജീവി സങ്കേതം",
+      description: "വന്യജീവികളെ കാണാനും പ്രകൃതി ആസ്വദിക്കാനും ഉള്ള മികച്ച സ്ഥലം.",
+      address: "ഷെന്തുരുണി, കൊല്ലം, കേരളം",
+      categories: ["wildlife", "forest", "nature"],
+      lat: 8.9667,
+      lon: 77.1667,
+    },
+    {
+      name: "പരവൂർ തടാകം",
+      description: "മനോഹരമായ തടാകം, ബോട്ടിംഗിനും പിക്നിക്കിനും അനുയോജ്യമാണ്.",
+      address: "പരവൂർ, കൊല്ലം, കേരളം",
+      categories: ["lake", "boating", "picnic"],
+      lat: 8.7833,
+      lon: 76.6667,
+    },
+    {
+      name: "മൺറോ ദ്വീപ്",
+      description: "കായലുകൾക്കിടയിലുള്ള മനോഹരമായ ദ്വീപ്.",
+      address: "മൺറോ ദ്വീപ്, കൊല്ലം, കേരളം",
+      categories: ["island", "backwaters", "nature"],
+      lat: 9.0,
+      lon: 76.5833,
+    },
+    {
+      name: "മഹാത്മാഗാന്ധി പാർക്ക്",
+      description: "നഗരത്തിലെ മനോഹരമായ പാർക്ക്, വിനോദത്തിനും വിശ്രമത്തിനും അനുയോജ്യമാണ്.",
+      address: "കൊല്ലം, കേരളം",
+      categories: ["park", "recreation", "garden"],
+      lat: 8.8833,
+      lon: 76.5833,
+    },
+  ],
+  Pathanamthitta: [
+    {
+      name: "ശബരിമല ക്ഷേത്രം",
+      description: "പ്രശസ്തമായ ഹിന്ദു തീർത്ഥാടന കേന്ദ്രം.",
+      address: "ശബരിമല, പത്തനംതിട്ട, കേരളം",
+      categories: ["temple", "pilgrimage", "religion"],
+      lat: 9.4432,
+      lon: 77.0825,
+    },
+    {
+      name: "കൊന്നി ഫോറസ്റ്റ് റിസർവ്",
+      description: "ആനകളെ കാണാനും പ്രകൃതി ആസ്വദിക്കാനും ഉള്ള മികച്ച സ്ഥലം.",
+      address: "കൊന്നി, പത്തനംതിട്ട, കേരളം",
+      categories: ["forest", "wildlife", "nature"],
+      lat: 9.3333,
+      lon: 76.8333,
+    },
+    {
+      name: "ആറന്മുള പാർത്ഥസാരഥി ക്ഷേത്രം",
+      description: "പ്രശസ്തമായ ഹിന്ദു ക്ഷേത്രം, ആറന്മുള കണ്ണാടിക്ക് പേരുകേട്ടതാണ്.",
+      address: "ആറന്മുള, പത്തനംതിട്ട, കേരളം",
+      categories: ["temple", "religion", "culture"],
+      lat: 9.3333,
+      lon: 76.6833,
+    },
+    {
+      name: "ഗവി ഇക്കോ ടൂറിസം",
+      description: "ട്രെക്കിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമായ സ്ഥലം.",
+      address: "ഗവി, പത്തനംതിട്ട, കേരളം",
+      categories: ["trekking", "nature", "eco_tourism"],
+      lat: 9.2648,
+      lon: 76.787,
+    },
+    {
+      name: "പമ്പാ നദി",
+      description: "കേരളത്തിലെ മൂന്നാമത്തെ വലിയ നദി, ആത്മീയ പ്രാധാന്യമുണ്ട്.",
+      address: "പത്തനംതിട്ട, കേരളം",
+      categories: ["river", "spiritual", "nature"],
+      lat: 9.3333,
+      lon: 76.8333,
+    },
+    {
+      name: "പെരുന്തേനരുവി വെള്ളച്ചാട്ടം",
+      description: "മനോഹരമായ വെള്ളച്ചാട്ടം, പ്രകൃതി ആസ്വദിക്കാൻ അനുയോജ്യമാണ്.",
+      address: "പെരുന്തേനരുവി, പത്തനംതിട്ട, കേരളം",
+      categories: ["waterfall", "nature", "picnic"],
+      lat: 9.2667,
+      lon: 76.8333,
+    },
+    {
+      name: "കടമ്മനിട്ട ദേവീ ക്ഷേത്രം",
+      description: "പ്രശസ്തമായ ദേവീ ക്ഷേത്രം, കടമ്മനിട്ട പടയണിക്ക് പേരുകേട്ടതാണ്.",
+      address: "കടമ്മനിട്ട, പത്തനംതിട്ട, കേരളം",
+      categories: ["temple", "religion", "culture"],
+      lat: 9.3167,
+      lon: 76.6833,
+    },
+    {
+      name: "ചാരൽക്കുന്ന് മലനിരകൾ",
+      description: "മനോഹരമായ മലനിരകൾ, ട്രെക്കിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "ചാരൽക്കുന്ന്, പത്തനംതിട്ട, കേരളം",
+      categories: ["hills", "trekking", "nature"],
+      lat: 9.3833,
+      lon: 76.85,
+    },
+    {
+      name: "പന്തളം കൊട്ടാരം",
+      description: "ചരിത്രപരമായ കൊട്ടാരം, ശബരിമലയുമായി ബന്ധപ്പെട്ടിരിക്കുന്നു.",
+      address: "പന്തളം, പത്തനംതിട്ട, കേരളം",
+      categories: ["palace", "historic", "culture"],
+      lat: 9.2333,
+      lon: 76.7667,
+    },
+    {
+      name: "നിരണം ചർച്ച്",
+      description: "പുരാതനമായ ക്രിസ്ത്യൻ ആരാധനാലയം.",
+      address: "നിരണം, പത്തനംതിട്ട, കേരളം",
+      categories: ["church", "religion", "historic"],
+      lat: 9.3667,
+      lon: 76.5,
+    },
+    {
+      name: "മുളൂർ സ്മാരകം",
+      description: "പ്രശസ്ത കവി മുളൂരിന്റെ സ്മാരകം.",
+      address: "മുളൂർ, പത്തനംതിട്ട, കേരളം",
+      categories: ["memorial", "culture", "historic"],
+      lat: 9.3333,
+      lon: 76.75,
+    },
+    {
+      name: "മഞ്ഞിനിക്കര ചർച്ച്",
+      description: "പ്രശസ്തമായ ക്രിസ്ത്യൻ ആരാധനാലയം.",
+      address: "മഞ്ഞിനിക്കര, പത്തനംതിട്ട, കേരളം",
+      categories: ["church", "religion", "historic"],
+      lat: 9.3333,
+      lon: 76.5,
+    },
+  ],
+  Alappuzha: [
+    {
+      name: "ആലപ്പുഴ കായലുകൾ",
+      description: "കേരളത്തിന്റെ കായൽ പ്രദേശങ്ങൾ, ഹൗസ്ബോട്ട് യാത്രകൾക്ക് പ്രസിദ്ധമാണ്.",
+      address: "ആലപ്പുഴ, കേരളം",
+      categories: ["backwaters", "houseboat", "water"],
+      lat: 9.4981,
+      lon: 76.3388,
+    },
+    {
+      name: "അമ്പലപ്പുഴ ശ്രീകൃഷ്ണ ക്ഷേത്രം",
+      description: "പ്രശസ്തമായ ഹിന്ദു ക്ഷേത്രം, പാൽപായസത്തിന് പേരുകേട്ടതാണ്.",
+      address: "അമ്പലപ്പുഴ, ആലപ്പുഴ, കേരളം",
+      categories: ["temple", "religion", "culture"],
+      lat: 9.3833,
+      lon: 76.35,
+    },
+    {
+      name: "മന്നാറശാല നാഗരാജ ക്ഷേത്രം",
+      description: "പ്രശസ്തമായ സർപ്പ ക്ഷേത്രം.",
+      address: "മന്നാറശാല, ആലപ്പുഴ, കേരളം",
+      categories: ["temple", "religion", "culture"],
+      lat: 9.3333,
+      lon: 76.4167,
+    },
+    {
+      name: "ആലപ്പുഴ ബീച്ച്",
+      description: "മനോഹരമായ കടൽത്തീരം, പഴയ കടൽപ്പാലത്തിന് പേരുകേട്ടതാണ്.",
+      address: "ആലപ്പുഴ, കേരളം",
+      categories: ["beach", "pier", "water"],
+      lat: 9.49,
+      lon: 76.3264,
+    },
+    {
+      name: "പത്തിരാമനൽ ദ്വീപ്",
+      description: "കായലിനുള്ളിലെ മനോഹരമായ ദ്വീപ്, പക്ഷികളെ നിരീക്ഷിക്കാൻ അനുയോജ്യമാണ്.",
+      address: "പത്തിരാമനൽ, ആലപ്പുഴ, കേരളം",
+      categories: ["island", "birdwatching", "nature"],
+      lat: 9.6167,
+      lon: 76.3833,
+    },
+    {
+      name: "കരുമാടിക്കുട്ടൻ ശിൽപ്പം",
+      description: "ചരിത്രപരമായ ബുദ്ധ ശിൽപ്പം.",
+      address: "കരുമാടി, ആലപ്പുഴ, കേരളം",
+      categories: ["sculpture", "historic", "culture"],
+      lat: 9.5167,
+      lon: 76.3333,
+    },
+    {
+      name: "കുമരകം പക്ഷി സങ്കേതം",
+      description: "പക്ഷികളെ നിരീക്ഷിക്കാനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമായ സ്ഥലം.",
+      address: "കുമരകം, ആലപ്പുഴ, കേരളം",
+      categories: ["bird_sanctuary", "nature", "wildlife"],
+      lat: 9.6,
+      lon: 76.4333,
+    },
+    {
+      name: "മരാരി ബീച്ച്",
+      description: "ശാന്തമായ കടൽത്തീരം, സൂര്യാസ്തമയ കാഴ്ചകൾക്ക് പ്രസിദ്ധമാണ്.",
+      address: "മരാരി, ആലപ്പുഴ, കേരളം",
+      categories: ["beach", "sunset", "water"],
+      lat: 9.5695,
+      lon: 76.3172,
+    },
+    {
+      name: "രവി കരുണാകരൻ മ്യൂസിയം",
+      description: "കലാസൃഷ്ടികളും പുരാവസ്തുക്കളും പ്രദർശിപ്പിക്കുന്ന മ്യൂസിയം.",
+      address: "ആലപ്പുഴ, കേരളം",
+      categories: ["museum", "art", "culture"],
+      lat: 9.4981,
+      lon: 76.3388,
+    },
+    {
+      name: "കൃഷ്ണപുരം കൊട്ടാരം",
+      description: "ചരിത്രപരമായ കൊട്ടാരം, ആർക്കിടെക്ചറൽ സവിശേഷതകൾക്ക് പേരുകേട്ടതാണ്.",
+      address: "കായംകുളം, ആലപ്പുഴ, കേരളം",
+      categories: ["palace", "historic", "architecture"],
+      lat: 9.1667,
+      lon: 76.5,
+    },
+    {
+      name: "വിജയ് ബീച്ച് പാർക്ക്",
+      description: "കടൽത്തീരത്തുള്ള വിനോദ പാർക്ക്.",
+      address: "ആലപ്പുഴ, കേരളം",
+      categories: ["beach_park", "recreation", "family"],
+      lat: 9.49,
+      lon: 76.32,
+    },
+    {
+      name: "സീ വ്യൂ പാർക്ക്",
+      description: "കടൽത്തീരത്തുള്ള മനോഹരമായ പാർക്ക്.",
+      address: "ആലപ്പുഴ, കേരളം",
+      categories: ["park", "beach", "recreation"],
+      lat: 9.49,
+      lon: 76.325,
+    },
+  ],
+  Kottayam: [
+    {
+      name: "ഇല്ലിക്കൽ കല്ല്",
+      description: "മനോഹരമായ പാറക്കെട്ട്, ട്രെക്കിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "ഇല്ലിക്കൽ, കോട്ടയം, കേരളം",
+      categories: ["trekking", "nature", "viewpoint"],
+      lat: 9.7667,
+      lon: 76.8333,
+    },
+    {
+      name: "വൈക്കം മഹാദേവ ക്ഷേത്രം",
+      description: "പ്രശസ്തമായ ശിവക്ഷേത്രം, ചരിത്രപരമായ പ്രാധാന്യമുണ്ട്.",
+      address: "വൈക്കം, കോട്ടയം, കേരളം",
+      categories: ["temple", "religion", "historic"],
+      lat: 9.75,
+      lon: 76.4,
+    },
+    {
+      name: "ഇലവീഴാപൂഞ്ചിറ",
+      description: "മനോഹരമായ പ്രകൃതി ദൃശ്യങ്ങൾ, ട്രെക്കിംഗിനും പിക്നിക്കിനും അനുയോജ്യമാണ്.",
+      address: "ഇലവീഴാപൂഞ്ചിറ, കോട്ടയം, കേരളം",
+      categories: ["nature", "trekking", "picnic"],
+      lat: 9.8333,
+      lon: 76.8333,
+    },
+    {
+      name: "ബേ ഐലൻഡ് ഡ്രിഫ്റ്റ്വുഡ് മ്യൂസിയം",
+      description: "അപൂർവ്വമായ ഡ്രിഫ്റ്റ്വുഡ് ശിൽപ്പങ്ങൾ പ്രദർശിപ്പിക്കുന്ന മ്യൂസിയം.",
+      address: "കുമരകം, കോട്ടയം, കേരളം",
+      categories: ["museum", "art", "culture"],
+      lat: 9.6,
+      lon: 76.4333,
+    },
+    {
+      name: "അരുവിക്കുഴി വെള്ളച്ചാട്ടം",
+      description: "മനോഹരമായ വെള്ളച്ചാട്ടം, പ്രകൃതി ആസ്വദിക്കാൻ അനുയോജ്യമാണ്.",
+      address: "അരുവിക്കുഴി, കോട്ടയം, കേരളം",
+      categories: ["waterfall", "nature", "picnic"],
+      lat: 9.5833,
+      lon: 76.75,
+    },
+    {
+      name: "മലരിക്കൽ ടൂറിസം വില്ലേജ്",
+      description: "പ്രാദേശിക ജീവിതരീതി അനുഭവിക്കാൻ പറ്റിയ സ്ഥലം.",
+      address: "മലരിക്കൽ, കോട്ടയം, കേരളം",
+      categories: ["village", "culture", "local"],
+      lat: 9.6167,
+      lon: 76.5333,
+    },
+    {
+      name: "വേമ്പനാട് കായൽ",
+      description: "കേരളത്തിലെ ഏറ്റവും വലിയ കായൽ, ഹൗസ്ബോട്ട് യാത്രകൾക്ക് പ്രസിദ്ധമാണ്.",
+      address: "കോട്ടയം, കേരളം",
+      categories: ["backwaters", "houseboat", "water"],
+      lat: 9.5,
+      lon: 76.4167,
+    },
+    {
+      name: "പൂഞ്ഞാർ കൊട്ടാരം",
+      description: "ചരിത്രപരമായ കൊട്ടാരം, ആർക്കിടെക്ചറൽ സവിശേഷതകൾക്ക് പേരുകേട്ടതാണ്.",
+      address: "പൂഞ്ഞാർ, കോട്ടയം, കേരളം",
+      categories: ["palace", "historic", "architecture"],
+      lat: 9.6667,
+      lon: 76.75,
+    },
+    {
+      name: "തഴതങ്ങാടി ജുമാ മസ്ജിദ്",
+      description: "പ്രശസ്തമായ മുസ്ലിം ആരാധനാലയം, ആർക്കിടെക്ചറൽ സവിശേഷതകൾക്ക് പേരുകേട്ടതാണ്.",
+      address: "തഴതങ്ങാടി, കോട്ടയം, കേരളം",
+      categories: ["mosque", "religion", "architecture"],
+      lat: 9.5916,
+      lon: 76.5222,
+    },
+    {
+      name: "കുമരകം കായലുകൾ",
+      description: "മനോഹരമായ കായൽ പ്രദേശം, ഹൗസ്ബോട്ട് യാത്രകൾക്ക് പ്രസിദ്ധമാണ്.",
+      address: "കുമരകം, കോട്ടയം, കേരളം",
+      categories: ["backwaters", "houseboat", "water"],
+      lat: 9.6037,
+      lon: 76.4286,
+    },
+    {
+      name: "ഏറ്റുമാനൂർ മഹാദേവ ക്ഷേത്രം",
+      description: "പ്രശസ്തമായ ശിവക്ഷേത്രം, ചുമർചിത്രങ്ങൾക്ക് പേരുകേട്ടതാണ്.",
+      address: "ഏറ്റുമാനൂർ, കോട്ടയം, കേരളം",
+      categories: ["temple", "religion", "art"],
+      lat: 9.65,
+      lon: 76.5667,
+    },
+    {
+      name: "സണ്ണിയുടെ ഗ്രാമഫോൺ മ്യൂസിയം",
+      description: "പഴയകാല ഗ്രാമഫോണുകളും സംഗീത ഉപകരണങ്ങളും പ്രദർശിപ്പിക്കുന്ന മ്യൂസിയം.",
+      address: "കോട്ടയം, കേരളം",
+      categories: ["museum", "music", "culture"],
+      lat: 9.5916,
+      lon: 76.5222,
+    },
+  ],
+  Idukki: [
+    {
+      name: "കൽവാരി മൗണ്ട്",
+      description: "മനോഹരമായ മലനിരകൾ, ആത്മീയ പ്രാധാന്യമുണ്ട്.",
+      address: "വാഗമൺ, ഇടുക്കി, കേരളം",
+      categories: ["spiritual", "hills", "nature"],
+      lat: 9.6833,
+      lon: 76.9,
+    },
+    {
+      name: "മീസപ്പുലിമല",
+      description: "മനോഹരമായ മലനിരകൾ, ട്രെക്കിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "മീസപ്പുലിമല, ഇടുക്കി, കേരളം",
+      categories: ["trekking", "nature", "hills"],
+      lat: 10.1,
+      lon: 77.1,
+    },
+    {
+      name: "ഇടുക്കി ആർച്ച് ഡാം",
+      description: "ഇന്ത്യയിലെ ഏറ്റവും ഉയരം കൂടിയ ആർച്ച് ഡാമുകളിൽ ഒന്ന്.",
+      address: "ഇടുക്കി, കേരളം",
+      categories: ["dam", "engineering", "viewpoint"],
+      lat: 9.8456,
+      lon: 76.938,
+    },
+    {
+      name: "അണയിറങ്കൽ ഡാം",
+      description: "മനോഹരമായ ഡാം, തേയില തോട്ടങ്ങൾക്കിടയിൽ സ്ഥിതി ചെയ്യുന്നു.",
+      address: "അണയിറങ്കൽ, ഇടുക്കി, കേരളം",
+      categories: ["dam", "tea_plantation", "nature"],
+      lat: 10.0,
+      lon: 77.1,
+    },
+    {
+      name: "കുളമാവ് ഡാം",
+      description: "മനോഹരമായ ഡാം, ബോട്ടിംഗിനും പിക്നിക്കിനും അനുയോജ്യമാണ്.",
+      address: "കുളമാവ്, ഇടുക്കി, കേരളം",
+      categories: ["dam", "boating", "picnic"],
+      lat: 9.9,
+      lon: 76.95,
+    },
+    {
+      name: "ചെറുതോണി ഡാം",
+      description: "മനോഹരമായ ഡാം, പ്രകൃതി ദൃശ്യങ്ങൾക്ക് പ്രസിദ്ധമാണ്.",
+      address: "ചെറുതോണി, ഇടുക്കി, കേരളം",
+      categories: ["dam", "nature", "viewpoint"],
+      lat: 9.85,
+      lon: 76.95,
+    },
+    {
+      name: "പെരിയാർ വന്യജീവി സങ്കേതം",
+      description: "ആനകളെ കാണാനും ബോട്ട് സഫാരി നടത്താനും ഉള്ള പ്രശസ്തമായ സ്ഥലം.",
+      address: "തേക്കടി, ഇടുക്കി, കേരളം",
+      categories: ["wildlife", "safari", "nature"],
+      lat: 9.5712,
+      lon: 77.181,
+    },
+    {
+      name: "മുന്നാർ മലനിരകൾ",
+      description: "കേരളത്തിലെ പ്രശസ്തമായ ഹിൽ സ്റ്റേഷൻ, തേയില തോട്ടങ്ങൾക്കും മനോഹരമായ കാഴ്ചകൾക്കും പ്രസിദ്ധമാണ്.",
+      address: "മുന്നാർ, ഇടുക്കി, കേരളം",
+      categories: ["hill_station", "tea_plantation", "nature"],
+      lat: 10.0889,
+      lon: 77.0595,
+    },
+    {
+      name: "ടീ മ്യൂസിയം, മുന്നാർ",
+      description: "തേയിലയുടെ ചരിത്രവും ഉത്പാദന പ്രക്രിയയും പ്രദർശിപ്പിക്കുന്ന മ്യൂസിയം.",
+      address: "മുന്നാർ, ഇടുക്കി, കേരളം",
+      categories: ["museum", "tea", "education"],
+      lat: 10.0889,
+      lon: 77.0595,
+    },
+    {
+      name: "ഇരവികുളം നാഷണൽ പാർക്ക്",
+      description: "വന്യജീവികളെ കാണാനും പ്രകൃതി ആസ്വദിക്കാനും ഉള്ള മികച്ച സ്ഥലം.",
+      address: "മുന്നാർ, ഇടുക്കി, കേരളം",
+      categories: ["national_park", "wildlife", "nature"],
+      lat: 10.2,
+      lon: 77.05,
+    },
+    {
+      name: "മറയൂർ ചന്ദന വനങ്ങൾ",
+      description: "ചന്ദന മരങ്ങൾക്ക് പേരുകേട്ട വനമേഖല.",
+      address: "മറയൂർ, ഇടുക്കി, കേരളം",
+      categories: ["forest", "sandalwood", "nature"],
+      lat: 10.2667,
+      lon: 77.1667,
+    },
+    {
+      name: "ചിന്നാർ വന്യജീവി സങ്കേതം",
+      description: "വന്യജീവികളെ കാണാനും പ്രകൃതി ആസ്വദിക്കാനും ഉള്ള മികച്ച സ്ഥലം.",
+      address: "ചിന്നാർ, ഇടുക്കി, കേരളം",
+      categories: ["wildlife", "sanctuary", "nature"],
+      lat: 10.3,
+      lon: 77.2,
+    },
+  ],
+  Ernakulam: [
+    {
+      name: "ലുലു മാൾ",
+      description: "ഇന്ത്യയിലെ ഏറ്റവും വലിയ ഷോപ്പിംഗ് മാളുകളിൽ ഒന്ന്.",
+      address: "എടപ്പള്ളി, കൊച്ചി, കേരളം",
+      categories: ["shopping_mall", "entertainment", "food"],
+      lat: 10.0274,
+      lon: 76.3083,
+    },
+    {
+      name: "കഥകളി സെന്റർ, ഫോർട്ട് കൊച്ചി",
+      description: "പരമ്പരാഗത കഥകളി നൃത്തം കാണാൻ പറ്റിയ സ്ഥലം.",
+      address: "ഫോർട്ട് കൊച്ചി, എറണാകുളം, കേരളം",
+      categories: ["culture", "dance", "art"],
+      lat: 9.9658,
+      lon: 76.2422,
+    },
+    {
+      name: "ജൂതപ്പള്ളി, മട്ടാഞ്ചേരി",
+      description: "ചരിത്രപരമായ ജൂത ആരാധനാലയം, പുരാതന വസ്തുക്കൾ പ്രദർശിപ്പിക്കുന്നു.",
+      address: "മട്ടാഞ്ചേരി, കൊച്ചി, കേരളം",
+      categories: ["synagogue", "historic", "culture"],
+      lat: 9.9583,
+      lon: 76.2567,
+    },
+    {
+      name: "കേരള ഫോക്ലോർ മ്യൂസിയം",
+      description: "കേരളത്തിന്റെ പരമ്പരാഗത കലകളും സംസ്കാരവും പ്രദർശിപ്പിക്കുന്ന മ്യൂസിയം.",
+      address: "കൊച്ചി, എറണാകുളം, കേരളം",
+      categories: ["museum", "culture", "art"],
+      lat: 9.9312,
+      lon: 76.2673,
+    },
+    {
+      name: "ആലുവ മണപ്പുറം",
+      description: "പെരിയാർ നദിയുടെ തീരത്തുള്ള മനോഹരമായ സ്ഥലം.",
+      address: "ആലുവ, എറണാകുളം, കേരളം",
+      categories: ["river", "nature", "picnic"],
+      lat: 10.1,
+      lon: 76.35,
+    },
+    {
+      name: "അരീക്കൽ വെള്ളച്ചാട്ടം",
+      description: "മനോഹരമായ വെള്ളച്ചാട്ടം, പ്രകൃതി ആസ്വദിക്കാൻ അനുയോജ്യമാണ്.",
+      address: "അരീക്കൽ, എറണാകുളം, കേരളം",
+      categories: ["waterfall", "nature", "picnic"],
+      lat: 10.2,
+      lon: 76.4,
+    },
+    {
+      name: "ബേസ്റ്റിയൻ ബംഗ്ലാവ്",
+      description: "ചരിത്രപരമായ കെട്ടിടം, ഡച്ച് സ്വാധീനം കാണാം.",
+      address: "ഫോർട്ട് കൊച്ചി, എറണാകുളം, കേരളം",
+      categories: ["historic", "architecture", "culture"],
+      lat: 9.9658,
+      lon: 76.2422,
+    },
+    {
+      name: "ഭൂതത്താൻകെട്ട് ഡാം",
+      description: "മനോഹരമായ ഡാം, ബോട്ടിംഗിനും പിക്നിക്കിനും അനുയോജ്യമാണ്.",
+      address: "ഭൂതത്താൻകെട്ട്, എറണാകുളം, കേരളം",
+      categories: ["dam", "boating", "picnic"],
+      lat: 10.1667,
+      lon: 76.7,
+    },
+    {
+      name: "ബോൾഗാട്ടി പാലസ്",
+      description: "ചരിത്രപരമായ കൊട്ടാരം, ഇപ്പോൾ ഹോട്ടലായി പ്രവർത്തിക്കുന്നു.",
+      address: "ബോൾഗാട്ടി ദ്വീപ്, കൊച്ചി, കേരളം",
+      categories: ["palace", "historic", "hotel"],
+      lat: 9.9833,
+      lon: 76.2667,
+    },
+    {
+      name: "ചെറായി ബീച്ച്",
+      description: "മനോഹരമായ കടൽത്തീരം, വിനോദത്തിനും വിശ്രമത്തിനും അനുയോജ്യമാണ്.",
+      address: "ചെറായി, എറണാകുളം, കേരളം",
+      categories: ["beach", "recreation", "water"],
+      lat: 10.1333,
+      lon: 76.1833,
+    },
+    {
+      name: "മറൈൻ ഡ്രൈവ്, കൊച്ചി",
+      description: "കടൽത്തീരത്തുള്ള മനോഹരമായ നടപ്പാത, സൂര്യാസ്തമയ കാഴ്ചകൾക്ക് പ്രസിദ്ധമാണ്.",
+      address: "കൊച്ചി, എറണാകുളം, കേരളം",
+      categories: ["promenade", "sunset", "shopping"],
+      lat: 9.9312,
+      lon: 76.2673,
+    },
+    {
+      name: "ഹിൽ പാലസ് മ്യൂസിയം, തൃപ്പൂണിത്തുറ",
+      description: "കൊച്ചി രാജകുടുംബത്തിന്റെ പഴയ കൊട്ടാരം, ഇപ്പോൾ മ്യൂസിയമായി പ്രവർത്തിക്കുന്നു.",
+      address: "തൃപ്പൂണിത്തുറ, എറണാകുളം, കേരളം",
+      categories: ["museum", "palace", "historic"],
+      lat: 9.95,
+      lon: 76.35,
+    },
+  ],
+  Thrissur: [
+    {
+      name: "വടക്കുന്നാഥൻ ക്ഷേത്രം",
+      description: "പ്രശസ്തമായ ശിവക്ഷേത്രം, ആർക്കിടെക്ചറൽ സവിശേഷതകൾക്ക് പ്രസിദ്ധമാണ്.",
+      address: "തൃശ്ശൂർ, കേരളം",
+      categories: ["temple", "architecture", "religion"],
+      lat: 10.5276,
+      lon: 76.2144,
+    },
+    {
+      name: "ഗുരുവായൂർ ക്ഷേത്രം",
+      description: "പ്രശസ്തമായ ഹിന്ദു ക്ഷേത്രം, കൃഷ്ണ ഭക്തിക്ക് പേരുകേട്ടതാണ്.",
+      address: "ഗുരുവായൂർ, തൃശ്ശൂർ, കേരളം",
+      categories: ["temple", "religion", "pilgrimage"],
+      lat: 10.5947,
+      lon: 76.0411,
+    },
+    {
+      name: "അതിരപ്പിള്ളി വെള്ളച്ചാട്ടം",
+      description: "കേരളത്തിലെ ഏറ്റവും വലിയ വെള്ളച്ചാട്ടം, മനോഹരമായ കാഴ്ചകൾ നൽകുന്നു.",
+      address: "അതിരപ്പിള്ളി, തൃശ്ശൂർ, കേരളം",
+      categories: ["waterfall", "nature", "viewpoint"],
+      lat: 10.285,
+      lon: 76.57,
+    },
+    {
+      name: "പീച്ചി ഡാം",
+      description: "മനോഹരമായ ഡാം, പിക്നിക്കിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "പീച്ചി, തൃശ്ശൂർ, കേരളം",
+      categories: ["dam", "picnic", "nature"],
+      lat: 10.5253,
+      lon: 76.3579,
+    },
+    {
+      name: "ചാവക്കാട് ബീച്ച്",
+      description: "മനോഹരമായ കടൽത്തീരം, വിനോദത്തിനും വിശ്രമത്തിനും അനുയോജ്യമാണ്.",
+      address: "ചാവക്കാട്, തൃശ്ശൂർ, കേരളം",
+      categories: ["beach", "recreation", "water"],
+      lat: 10.5833,
+      lon: 76.0167,
+    },
+    {
+      name: "കേരള കലാമണ്ഡലം",
+      description: "പരമ്പരാഗത കലകൾ പഠിപ്പിക്കുന്ന സ്ഥാപനം.",
+      address: "ചേർത്തല, തൃശ്ശൂർ, കേരളം",
+      categories: ["culture", "art", "education"],
+      lat: 10.55,
+      lon: 76.25,
+    },
+    {
+      name: "ശക്തൻ തമ്പുരാൻ കൊട്ടാരം",
+      description: "ചരിത്രപരമായ കൊട്ടാരം, ആർക്കിടെക്ചറൽ സവിശേഷതകൾക്ക് പേരുകേട്ടതാണ്.",
+      address: "തൃശ്ശൂർ, കേരളം",
+      categories: ["palace", "historic", "architecture"],
+      lat: 10.5276,
+      lon: 76.2144,
+    },
+    {
+      name: "തൃശ്ശൂർ മൃഗശാല & മ്യൂസിയം",
+      description: "വിവിധ ജീവികളെ കാണാനും വിദ്യാഭ്യാസ പ്രദർശനങ്ങൾ കാണാനും പറ്റിയ സ്ഥലം.",
+      address: "തൃശ്ശൂർ, കേരളം",
+      categories: ["zoo", "museum", "education"],
+      lat: 10.5276,
+      lon: 76.2144,
+    },
+    {
+      name: "വാഴച്ചാൽ വെള്ളച്ചാട്ടം",
+      description: "മനോഹരമായ വെള്ളച്ചാട്ടം, പ്രകൃതി ആസ്വദിക്കാൻ അനുയോജ്യമാണ്.",
+      address: "വാഴച്ചാൽ, തൃശ്ശൂർ, കേരളം",
+      categories: ["waterfall", "nature", "picnic"],
+      lat: 10.3,
+      lon: 76.55,
+    },
+    {
+      name: "സ്നേഹതീരം ബീച്ച്",
+      description: "മനോഹരമായ കടൽത്തീരം, വിനോദത്തിനും വിശ്രമത്തിനും അനുയോജ്യമാണ്.",
+      address: "നട്ടിക, തൃശ്ശൂർ, കേരളം",
+      categories: ["beach", "recreation", "water"],
+      lat: 10.5,
+      lon: 76.05,
+    },
+    {
+      name: "ബൈബിൾ ടവർ",
+      description: "ക്രിസ്ത്യൻ ആരാധനാലയം, ആർക്കിടെക്ചറൽ സവിശേഷതകൾക്ക് പേരുകേട്ടതാണ്.",
+      address: "തൃശ്ശൂർ, കേരളം",
+      categories: ["church", "architecture", "religion"],
+      lat: 10.5276,
+      lon: 76.2144,
+    },
+    {
+      name: "ചെപ്പാറ മലനിരകൾ",
+      description: "മനോഹരമായ മലനിരകൾ, ട്രെക്കിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "ചെപ്പാറ, തൃശ്ശൂർ, കേരളം",
+      categories: ["hills", "trekking", "nature"],
+      lat: 10.55,
+      lon: 76.3,
+    },
+  ],
+  Palakkad: [
+    {
+      name: "പാലക്കാട് കോട്ട",
+      description: "ചരിത്രപരമായ കോട്ട, ടിപ്പു സുൽത്താന്റെ കാലഘട്ടത്തിൽ നിർമ്മിച്ചത്.",
+      address: "പാലക്കാട്, കേരളം",
+      categories: ["fort", "historic", "architecture"],
+      lat: 10.7867,
+      lon: 76.6548,
+    },
+    {
+      name: "മലമ്പുഴ ഡാം & ഗാർഡൻ",
+      description: "മനോഹരമായ ഡാം, പിക്നിക്കിനും ഗാർഡൻ സന്ദർശനത്തിനും അനുയോജ്യമാണ്.",
+      address: "മലമ്പുഴ, പാലക്കാട്, കേരളം",
+      categories: ["dam", "garden", "picnic"],
+      lat: 10.83,
+      lon: 76.6833,
+    },
+    {
+      name: "സൈലന്റ് വാലി നാഷണൽ പാർക്ക്",
+      description: "വന്യജീവി സങ്കേതവും ഇക്കോ ടൂറിസം കേന്ദ്രവും.",
+      address: "സൈലന്റ് വാലി, പാലക്കാട്, കേരളം",
+      categories: ["national_park", "wildlife", "nature"],
+      lat: 10.9167,
+      lon: 76.75,
+    },
+    {
+      name: "പറമ്പിക്കുളം ടൈഗർ റിസർവ്",
+      description: "വന്യജീവികളെ കാണാനും പ്രകൃതി ആസ്വദിക്കാനും ഉള്ള മികച്ച സ്ഥലം.",
+      address: "പറമ്പിക്കുളം, പാലക്കാട്, കേരളം",
+      categories: ["tiger_reserve", "wildlife", "nature"],
+      lat: 10.4667,
+      lon: 76.8,
+    },
+    {
+      name: "ധോണി വെള്ളച്ചാട്ടം",
+      description: "മനോഹരമായ വെള്ളച്ചാട്ടം, ട്രെക്കിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "ധോണി, പാലക്കാട്, കേരളം",
+      categories: ["waterfall", "trekking", "nature"],
+      lat: 10.8333,
+      lon: 76.6667,
+    },
+    {
+      name: "നെല്ലിയാമ്പതി മലനിരകൾ",
+      description: "മനോഹരമായ മലനിരകൾ, തേയില തോട്ടങ്ങൾക്കും പ്രകൃതി ദൃശ്യങ്ങൾക്കും പ്രസിദ്ധമാണ്.",
+      address: "നെല്ലിയാമ്പതി, പാലക്കാട്, കേരളം",
+      categories: ["hills", "tea_plantation", "nature"],
+      lat: 10.5333,
+      lon: 76.7,
+    },
+    {
+      name: "മീൻവല്ലം വെള്ളച്ചാട്ടം",
+      description: "മനോഹരമായ വെള്ളച്ചാട്ടം, പ്രകൃതി ആസ്വദിക്കാൻ അനുയോജ്യമാണ്.",
+      address: "മീൻവല്ലം, പാലക്കാട്, കേരളം",
+      categories: ["waterfall", "nature", "picnic"],
+      lat: 10.8333,
+      lon: 76.75,
+    },
+    {
+      name: "കഞ്ചിരപ്പുഴ ഡാം",
+      description: "മനോഹരമായ ഡാം, ബോട്ടിംഗിനും പിക്നിക്കിനും അനുയോജ്യമാണ്.",
+      address: "കഞ്ചിരപ്പുഴ, പാലക്കാട്, കേരളം",
+      categories: ["dam", "boating", "picnic"],
+      lat: 10.8,
+      lon: 76.7,
+    },
+    {
+      name: "അട്ടപ്പാടി ഗോത്രവർഗ്ഗ മേഖല",
+      description: "ഗോത്രവർഗ്ഗ സംസ്കാരം അനുഭവിക്കാൻ പറ്റിയ സ്ഥലം.",
+      address: "അട്ടപ്പാടി, പാലക്കാട്, കേരളം",
+      categories: ["tribal", "culture", "nature"],
+      lat: 11.1333,
+      lon: 76.4667,
+    },
+    {
+      name: "പൊതുണ്ടി ഡാം",
+      description: "മനോഹരമായ ഡാം, പിക്നിക്കിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "പൊതുണ്ടി, പാലക്കാട്, കേരളം",
+      categories: ["dam", "picnic", "nature"],
+      lat: 10.7,
+      lon: 76.65,
+    },
+    {
+      name: "സീതാർഗുണ്ട് വ്യൂപോയിന്റ്",
+      description: "മനോഹരമായ കാഴ്ചകൾ നൽകുന്ന വ്യൂപോയിന്റ്.",
+      address: "നെല്ലിയാമ്പതി, പാലക്കാട്, കേരളം",
+      categories: ["viewpoint", "nature", "hills"],
+      lat: 10.5333,
+      lon: 76.7,
+    },
+    {
+      name: "കാവ വ്യൂപോയിന്റ്",
+      description: "മനോഹരമായ കാഴ്ചകൾ നൽകുന്ന വ്യൂപോയിന്റ്.",
+      address: "നെല്ലിയാമ്പതി, പാലക്കാട്, കേരളം",
+      categories: ["viewpoint", "nature", "hills"],
+      lat: 10.5333,
+      lon: 76.7,
+    },
+  ],
+  Malappuram: [
+    {
+      name: "കോട്ടക്കുന്ന് മലനിരകളും പാർക്കും",
+      description: "ചരിത്രപരമായ പ്രാധാന്യമുള്ള കുന്ന്, മനോഹരമായ കാഴ്ചകൾ നൽകുന്നു.",
+      address: "കോട്ടക്കുന്ന്, മലപ്പുറം, കേരളം",
+      categories: ["historic", "viewpoint", "nature"],
+      lat: 11.051,
+      lon: 76.0711,
+    },
+    {
+      name: "പടിഞ്ഞാറേക്കര ബീച്ച്",
+      description: "മനോഹരമായ കടൽത്തീരം, വിനോദത്തിനും വിശ്രമത്തിനും അനുയോജ്യമാണ്.",
+      address: "പടിഞ്ഞാറേക്കര, മലപ്പുറം, കേരളം",
+      categories: ["beach", "recreation", "water"],
+      lat: 10.7833,
+      lon: 75.9167,
+    },
+    {
+      name: "കടലുണ്ടി പക്ഷി സങ്കേതം",
+      description: "പക്ഷികളെ നിരീക്ഷിക്കാനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമായ സ്ഥലം.",
+      address: "കടലുണ്ടി, മലപ്പുറം, കേരളം",
+      categories: ["bird_sanctuary", "nature", "wildlife"],
+      lat: 11.1333,
+      lon: 75.8333,
+    },
+    {
+      name: "നിലമ്പൂർ ടീക്ക് മ്യൂസിയം",
+      description: "ടീക്ക് മരങ്ങളുടെ ചരിത്രവും പ്രാധാന്യവും പ്രദർശിപ്പിക്കുന്ന മ്യൂസിയം.",
+      address: "നിലമ്പൂർ, മലപ്പുറം, കേരളം",
+      categories: ["museum", "teak", "education"],
+      lat: 11.2667,
+      lon: 76.2333,
+    },
+    {
+      name: "തിരുനാവായ ക്ഷേത്രം",
+      description: "പ്രശസ്തമായ ഹിന്ദു ക്ഷേത്രം, മാമാങ്കത്തിന് പേരുകേട്ടതാണ്.",
+      address: "തിരുനാവായ, മലപ്പുറം, കേരളം",
+      categories: ["temple", "religion", "historic"],
+      lat: 10.8333,
+      lon: 76.0,
+    },
+    {
+      name: "പൊന്നാനി ബീച്ച്",
+      description: "മനോഹരമായ കടൽത്തീരം, വിനോദത്തിനും വിശ്രമത്തിനും അനുയോജ്യമാണ്.",
+      address: "പൊന്നാനി, മലപ്പുറം, കേരളം",
+      categories: ["beach", "recreation", "water"],
+      lat: 10.7667,
+      lon: 75.9,
+    },
+    {
+      name: "ബിയ്യം കായൽ ബാക്ക്വാട്ടേഴ്സ്",
+      description: "മനോഹരമായ കായൽ പ്രദേശം, ബോട്ടിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "ബിയ്യം, മലപ്പുറം, കേരളം",
+      categories: ["backwaters", "boating", "nature"],
+      lat: 10.7667,
+      lon: 75.9,
+    },
+    {
+      name: "കോട്ടക്കൽ ആര്യവൈദ്യശാല",
+      description: "പ്രശസ്തമായ ആയുർവേദ ചികിത്സാ കേന്ദ്രം.",
+      address: "കോട്ടക്കൽ, മലപ്പുറം, കേരളം",
+      categories: ["ayurveda", "healthcare", "culture"],
+      lat: 10.9833,
+      lon: 76.0167,
+    },
+    {
+      name: "അടയൻപാറ വെള്ളച്ചാട്ടം",
+      description: "മനോഹരമായ വെള്ളച്ചാട്ടം, പ്രകൃതി ആസ്വദിക്കാൻ അനുയോജ്യമാണ്.",
+      address: "അടയൻപാറ, മലപ്പുറം, കേരളം",
+      categories: ["waterfall", "nature", "picnic"],
+      lat: 11.3333,
+      lon: 76.3333,
+    },
+    {
+      name: "കോടികുത്തിമല ഹിൽ സ്റ്റേഷൻ",
+      description: "മനോഹരമായ മലനിരകൾ, ട്രെക്കിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "കോടികുത്തിമല, മലപ്പുറം, കേരളം",
+      categories: ["hill_station", "trekking", "nature"],
+      lat: 11.1667,
+      lon: 76.1667,
+    },
+    {
+      name: "തുഞ്ചൻ പറമ്പ്",
+      description: "മലയാള ഭാഷയുടെ പിതാവായ തുഞ്ചത്ത് എഴുത്തച്ഛന്റെ ജന്മസ്ഥലം.",
+      address: "തിരൂർ, മലപ്പുറം, കേരളം",
+      categories: ["historic", "culture", "literature"],
+      lat: 10.9,
+      lon: 76.0333,
+    },
+    {
+      name: "മിനി ഊട്ടി (അരിമ്പ്ര മലനിരകൾ)",
+      description: "മനോഹരമായ മലനിരകൾ, ഊട്ടിയെ പോലെയുള്ള കാലാവസ്ഥയ്ക്ക് പേരുകേട്ടതാണ്.",
+      address: "അരിമ്പ്ര, മലപ്പുറം, കേരളം",
+      categories: ["hill_station", "nature", "viewpoint"],
+      lat: 11.0,
+      lon: 76.1667,
+    },
+  ],
+  Kozhikode: [
+    {
+      name: "കോഴിക്കോട് ബീച്ച്",
+      description: "മനോഹരമായ കടൽത്തീരം, സൂര്യാസ്തമയ കാഴ്ചകൾക്ക് പ്രസിദ്ധമാണ്.",
+      address: "കോഴിക്കോട്, കേരളം",
+      categories: ["beach", "sunset", "water"],
+      lat: 11.2588,
+      lon: 75.7804,
+    },
+    {
+      name: "ബേപ്പൂർ പോർട്ട്",
+      description: "ചരിത്രപരമായ തുറമുഖം, ഉറു മരക്കപ്പലുകൾക്ക് പേരുകേട്ടതാണ്.",
+      address: "ബേപ്പൂർ, കോഴിക്കോട്, കേരളം",
+      categories: ["port", "historic", "boats"],
+      lat: 11.1667,
+      lon: 75.8,
+    },
+    {
+      name: "കാപ്പാട് ബീച്ച്",
+      description: "ശാന്തമായ കടൽത്തീരം, പാറക്കെട്ടുകൾക്ക് പ്രസിദ്ധമാണ്.",
+      address: "കാപ്പാട്, കോഴിക്കോട്, കേരളം",
+      categories: ["beach", "rocks", "water"],
+      lat: 11.3833,
+      lon: 75.7667,
+    },
+    {
+      name: "തുഷാരഗിരി വെള്ളച്ചാട്ടം",
+      description: "മനോഹരമായ വെള്ളച്ചാട്ടം, ട്രെക്കിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "തുഷാരഗിരി, കോഴിക്കോട്, കേരളം",
+      categories: ["waterfall", "trekking", "nature"],
+      lat: 11.35,
+      lon: 76.0,
+    },
+    {
+      name: "മനഞ്ചിറ സ്ക്വയർ",
+      description: "നഗരത്തിലെ മനോഹരമായ പാർക്ക്, വിനോദത്തിനും വിശ്രമത്തിനും അനുയോജ്യമാണ്.",
+      address: "മനഞ്ചിറ, കോഴിക്കോട്, കേരളം",
+      categories: ["park", "recreation", "lake"],
+      lat: 11.2588,
+      lon: 75.7804,
+    },
+    {
+      name: "പഴശ്ശി രാജാ മ്യൂസിയം",
+      description: "ചരിത്രപരമായ വസ്തുക്കളും കലാസൃഷ്ടികളും പ്രദർശിപ്പിക്കുന്ന മ്യൂസിയം.",
+      address: "കോഴിക്കോട്, കേരളം",
+      categories: ["museum", "historic", "culture"],
+      lat: 11.2588,
+      lon: 75.7804,
+    },
+    {
+      name: "സർഗാലയ ആർട്സ് & ക്രാഫ്റ്റ്സ് വില്ലേജ്",
+      description: "പരമ്പരാഗത കരകൗശല വസ്തുക്കൾ പ്രദർശിപ്പിക്കുന്ന കേന്ദ്രം.",
+      address: "ഇരിങ്ങൽ, കോഴിക്കോട്, കേരളം",
+      categories: ["crafts", "culture", "art"],
+      lat: 11.45,
+      lon: 75.7667,
+    },
+    {
+      name: "പെരുവണ്ണാമൂഴി ഡാം",
+      description: "മനോഹരമായ ഡാം, പിക്നിക്കിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "പെരുവണ്ണാമൂഴി, കോഴിക്കോട്, കേരളം",
+      categories: ["dam", "picnic", "nature"],
+      lat: 11.5,
+      lon: 75.8333,
+    },
+    {
+      name: "താളി ശിവക്ഷേത്രം",
+      description: "പ്രശസ്തമായ ശിവക്ഷേത്രം, ആർക്കിടെക്ചറൽ സവിശേഷതകൾക്ക് പേരുകേട്ടതാണ്.",
+      address: "കോഴിക്കോട്, കേരളം",
+      categories: ["temple", "religion", "architecture"],
+      lat: 11.2588,
+      lon: 75.7804,
+    },
+    {
+      name: "ലയൺസ് പാർക്ക്",
+      description: "കുടുംബങ്ങൾക്ക് ആസ്വദിക്കാൻ പറ്റിയ വിനോദ പാർക്ക്.",
+      address: "കോഴിക്കോട്, കേരളം",
+      categories: ["park", "recreation", "family"],
+      lat: 11.2588,
+      lon: 75.7804,
+    },
+    {
+      name: "കക്കയം ഡാം",
+      description: "മനോഹരമായ ഡാം, പിക്നിക്കിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "കക്കയം, കോഴിക്കോട്, കേരളം",
+      categories: ["dam", "picnic", "nature"],
+      lat: 11.3333,
+      lon: 75.9167,
+    },
+    {
+      name: "എളത്തൂർ കനാൽ",
+      description: "മനോഹരമായ കനാൽ, ബോട്ടിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "എളത്തൂർ, കോഴിക്കോട്, കേരളം",
+      categories: ["canal", "boating", "nature"],
+      lat: 11.2,
+      lon: 75.8333,
+    },
+  ],
+  Wayanad: [
+    {
+      name: "എടക്കൽ ഗുഹകൾ",
+      description: "പുരാതന ശിലായുഗ ചിത്രങ്ങൾ കാണാൻ പറ്റിയ ഗുഹകൾ.",
+      address: "എടക്കൽ, വയനാട്, കേരളം",
+      categories: ["caves", "historic", "archaeology"],
+      lat: 11.6289,
+      lon: 76.2369,
+    },
+    {
+      name: "ബാണാസുര സാഗർ ഡാം",
+      description: "കേരളത്തിലെ ഏറ്റവും വലിയ ഭൂഗർഭ ഡാം, മനോഹരമായ കാഴ്ചകൾ നൽകുന്നു.",
+      address: "ബാണാസുര, വയനാട്, കേരളം",
+      categories: ["dam", "viewpoint", "nature"],
+      lat: 11.6667,
+      lon: 76.15,
+    },
+    {
+      name: "സൂചിപ്പാറ വെള്ളച്ചാട്ടം",
+      description: "മനോഹരമായ വെള്ളച്ചാട്ടം, പ്രകൃതി ആസ്വദിക്കാൻ അനുയോജ്യമാണ്.",
+      address: "സൂചിപ്പാറ, വയനാട്, കേരളം",
+      categories: ["waterfall", "nature", "picnic"],
+      lat: 11.6854,
+      lon: 76.132,
+    },
+    {
+      name: "പൂക്കോട് തടാകം",
+      description: "മനോഹരമായ തടാകം, ബോട്ടിംഗിനും പിക്നിക്കിനും അനുയോജ്യമാണ്.",
+      address: "പൂക്കോട്, വയനാട്, കേരളം",
+      categories: ["lake", "boating", "picnic"],
+      lat: 11.5425,
+      lon: 76.0367,
+    },
+    {
+      name: "വയനാട് വന്യജീവി സങ്കേതം",
+      description: "വന്യജീവികളെ കാണാനും പ്രകൃതി ആസ്വദിക്കാനും ഉള്ള മികച്ച സ്ഥലം.",
+      address: "വയനാട്, കേരളം",
+      categories: ["wildlife", "forest", "nature"],
+      lat: 11.7342,
+      lon: 76.2788,
+    },
+    {
+      name: "ചെമ്പ്ര പീക്ക്",
+      description: "ട്രെക്കിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമായ സ്ഥലം.",
+      address: "ചെമ്പ്ര, വയനാട്, കേരളം",
+      categories: ["trekking", "nature", "viewpoint"],
+      lat: 11.5119,
+      lon: 76.0881,
+    },
+    {
+      name: "തിരുനെല്ലി ക്ഷേത്രം",
+      description: "പ്രശസ്തമായ ഹിന്ദു ക്ഷേത്രം, ആത്മീയ പ്രാധാന്യമുണ്ട്.",
+      address: "തിരുനെല്ലി, വയനാട്, കേരളം",
+      categories: ["temple", "religion", "spiritual"],
+      lat: 11.9,
+      lon: 76.0833,
+    },
+    {
+      name: "മീൻമുട്ടി വെള്ളച്ചാട്ടം",
+      description: "മനോഹരമായ വെള്ളച്ചാട്ടം, ട്രെക്കിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "മീൻമുട്ടി, വയനാട്, കേരളം",
+      categories: ["waterfall", "trekking", "nature"],
+      lat: 11.8,
+      lon: 76.0,
+    },
+    {
+      name: "കുറുവ ദ്വീപ്",
+      description: "നദിയിലുള്ള മനോഹരമായ ദ്വീപ്, പ്രകൃതി ആസ്വദിക്കാൻ അനുയോജ്യമാണ്.",
+      address: "കുറുവ, വയനാട്, കേരളം",
+      categories: ["island", "nature", "river"],
+      lat: 11.8167,
+      lon: 76.1,
+    },
+    {
+      name: "ലക്കിടി വ്യൂ പോയിന്റ്",
+      description: "മനോഹരമായ കാഴ്ചകൾ നൽകുന്ന വ്യൂപോയിന്റ്.",
+      address: "ലക്കിടി, വയനാട്, കേരളം",
+      categories: ["viewpoint", "nature", "hills"],
+      lat: 11.5167,
+      lon: 76.0333,
+    },
+    {
+      name: "പക്ഷിപ്പാതാളം ഗുഹകൾ",
+      description: "പുരാതന ഗുഹകൾ, പക്ഷികളെ നിരീക്ഷിക്കാനും അനുയോജ്യമാണ്.",
+      address: "പക്ഷിപ്പാതാളം, വയനാട്, കേരളം",
+      categories: ["caves", "birdwatching", "nature"],
+      lat: 11.8333,
+      lon: 76.0,
+    },
+    {
+      name: "കാർലാഡ് തടാകം",
+      description: "മനോഹരമായ തടാകം, ബോട്ടിംഗിനും പിക്നിക്കിനും അനുയോജ്യമാണ്.",
+      address: "കാർലാഡ്, വയനാട്, കേരളം",
+      categories: ["lake", "boating", "picnic"],
+      lat: 11.65,
+      lon: 76.0833,
+    },
+  ],
+  Kannur: [
+    {
+      name: "പയ്യാമ്പലം ബീച്ച്",
+      description: "മനോഹരമായ കടൽത്തീരം, പാറക്കെട്ടുകൾക്കും സൂര്യാസ്തമയ കാഴ്ചകൾക്കും പ്രസിദ്ധമാണ്.",
+      address: "പയ്യാമ്പലം, കണ്ണൂർ, കേരളം",
+      categories: ["beach", "sunset", "rocks"],
+      lat: 11.9833,
+      lon: 75.2,
+    },
+    {
+      name: "സെന്റ് ആഞ്ചലോ കോട്ട",
+      description: "ചരിത്രപരമായ കോട്ട, കടൽത്തീരത്ത് സ്ഥിതി ചെയ്യുന്നു.",
+      address: "കണ്ണൂർ, കേരളം",
+      categories: ["fort", "historic", "beach"],
+      lat: 11.8745,
+      lon: 75.3704,
+    },
+    {
+      name: "മുഴപ്പിലങ്ങാട് ഡ്രൈവ്-ഇൻ ബീച്ച്",
+      description: "വാഹനങ്ങൾ ഓടിക്കാൻ പറ്റിയ കടൽത്തീരം, ഇന്ത്യയിലെ ഏക ഡ്രൈവ്-ഇൻ ബീച്ച്.",
+      address: "മുഴപ്പിലങ്ങാട്, കണ്ണൂർ, കേരളം",
+      categories: ["beach", "drive-in", "water"],
+      lat: 11.8,
+      lon: 75.4,
+    },
+    {
+      name: "പറശ്ശിനിക്കടവ് സ്നേക്ക് പാർക്ക്",
+      description: "വിവിധതരം പാമ്പുകളെ കാണാൻ പറ്റിയ പാർക്ക്.",
+      address: "പറശ്ശിനിക്കടവ്, കണ്ണൂർ, കേരളം",
+      categories: ["snake_park", "wildlife", "education"],
+      lat: 11.95,
+      lon: 75.35,
+    },
+    {
+      name: "അരക്കൽ മ്യൂസിയം",
+      description: "ചരിത്രപരമായ വസ്തുക്കളും കലാസൃഷ്ടികളും പ്രദർശിപ്പിക്കുന്ന മ്യൂസിയം.",
+      address: "കണ്ണൂർ, കേരളം",
+      categories: ["museum", "historic", "culture"],
+      lat: 11.8745,
+      lon: 75.3704,
+    },
+    {
+      name: "ഏഴിമല നാവൽ അക്കാദമി",
+      description: "ഇന്ത്യൻ നാവികസേനയുടെ പരിശീലന കേന്ദ്രം.",
+      address: "ഏഴിമല, കണ്ണൂർ, കേരളം",
+      categories: ["naval_academy", "education", "military"],
+      lat: 11.95,
+      lon: 75.25,
+    },
+    {
+      name: "പൈതൽമല ഹിൽ സ്റ്റേഷൻ",
+      description: "മനോഹരമായ മലനിരകൾ, ട്രെക്കിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "പൈതൽമല, കണ്ണൂർ, കേരളം",
+      categories: ["hill_station", "trekking", "nature"],
+      lat: 12.1667,
+      lon: 75.55,
+    },
+    {
+      name: "കണ്ണൂർ ലൈറ്റ് ഹൗസ്",
+      description: "ചരിത്രപരമായ ലൈറ്റ് ഹൗസ്, മനോഹരമായ കാഴ്ചകൾ നൽകുന്നു.",
+      address: "കണ്ണൂർ, കേരളം",
+      categories: ["lighthouse", "historic", "viewpoint"],
+      lat: 11.85,
+      lon: 75.35,
+    },
+    {
+      name: "ധർമ്മടം ദ്വീപ്",
+      description: "കടലിലുള്ള മനോഹരമായ ദ്വീപ്, നടന്ന് പോകാൻ പറ്റിയ ദൂരത്തിലാണ്.",
+      address: "ധർമ്മടം, കണ്ണൂർ, കേരളം",
+      categories: ["island", "beach", "nature"],
+      lat: 11.7667,
+      lon: 75.4333,
+    },
+    {
+      name: "പെരളശ്ശേരി ക്ഷേത്രം",
+      description: "പ്രശസ്തമായ ഹിന്ദു ക്ഷേത്രം, ആർക്കിടെക്ചറൽ സവിശേഷതകൾക്ക് പേരുകേട്ടതാണ്.",
+      address: "പെരളശ്ശേരി, കണ്ണൂർ, കേരളം",
+      categories: ["temple", "religion", "architecture"],
+      lat: 12.0,
+      lon: 75.3333,
+    },
+    {
+      name: "തോട്ടട ബീച്ച്",
+      description: "ശാന്തമായ കടൽത്തീരം, വിനോദത്തിനും വിശ്രമത്തിനും അനുയോജ്യമാണ്.",
+      address: "തോട്ടട, കണ്ണൂർ, കേരളം",
+      categories: ["beach", "recreation", "water"],
+      lat: 11.9,
+      lon: 75.3,
+    },
+    {
+      name: "മടായി പാറ",
+      description: "മനോഹരമായ പാറക്കെട്ട്, ട്രെക്കിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "മടായി, കണ്ണൂർ, കേരളം",
+      categories: ["rocks", "trekking", "nature"],
+      lat: 12.05,
+      lon: 75.25,
+    },
+  ],
+  Kasaragod: [
+    {
+      name: "ബേക്കൽ കോട്ട",
+      description: "കടൽത്തീരത്തുള്ള ചരിത്രപരമായ കോട്ട, മനോഹരമായ കാഴ്ചകൾ നൽകുന്നു.",
+      address: "ബേക്കൽ, കാസർഗോഡ്, കേരളം",
+      categories: ["fort", "historic", "beach"],
+      lat: 12.3917,
+      lon: 75.0322,
+    },
+    {
+      name: "ചന്ദ്രഗിരി കോട്ട",
+      description: "ചരിത്രപരമായ കോട്ട, മനോഹരമായ കാഴ്ചകൾ നൽകുന്നു.",
+      address: "ചന്ദ്രഗിരി, കാസർഗോഡ്, കേരളം",
+      categories: ["fort", "historic", "viewpoint"],
+      lat: 12.4333,
+      lon: 75.0333,
+    },
+    {
+      name: "കാപ്പിൽ ബീച്ച്",
+      description: "മനോഹരമായ കടൽത്തീരം, വിനോദത്തിനും വിശ്രമത്തിനും അനുയോജ്യമാണ്.",
+      address: "കാപ്പിൽ, കാസർഗോഡ്, കേരളം",
+      categories: ["beach", "recreation", "water"],
+      lat: 12.4833,
+      lon: 74.9833,
+    },
+    {
+      name: "അനന്തപുര തടാക ക്ഷേത്രം",
+      description: "തടാകത്തിനുള്ളിലുള്ള പ്രശസ്തമായ ക്ഷേത്രം.",
+      address: "അനന്തപുര, കാസർഗോഡ്, കേരളം",
+      categories: ["temple", "lake", "religion"],
+      lat: 12.6,
+      lon: 74.95,
+    },
+    {
+      name: "റാണിപുരം മലനിരകൾ",
+      description: "മനോഹരമായ മലനിരകൾ, ട്രെക്കിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "റാണിപുരം, കാസർഗോഡ്, കേരളം",
+      categories: ["hills", "trekking", "nature"],
+      lat: 12.4167,
+      lon: 75.35,
+    },
+    {
+      name: "മാലിക് ദീനാർ മോസ്ക്",
+      description: "പ്രശസ്തമായ മുസ്ലിം ആരാധനാലയം, ചരിത്രപരമായ പ്രാധാന്യമുണ്ട്.",
+      address: "കാസർഗോഡ്, കേരളം",
+      categories: ["mosque", "religion", "historic"],
+      lat: 12.5,
+      lon: 75.0,
+    },
+    {
+      name: "ഹോസ്ദുർഗ് കോട്ട",
+      description: "ചരിത്രപരമായ കോട്ട, ആർക്കിടെക്ചറൽ സവിശേഷതകൾക്ക് പേരുകേട്ടതാണ്.",
+      address: "കാഞ്ഞങ്ങാട്, കാസർഗോഡ്, കേരളം",
+      categories: ["fort", "historic", "architecture"],
+      lat: 12.3167,
+      lon: 75.1,
+    },
+    {
+      name: "വലിയപരമ്പ ബാക്ക്വാട്ടേഴ്സ്",
+      description: "മനോഹരമായ കായൽ പ്രദേശം, ബോട്ടിംഗിനും പ്രകൃതി ആസ്വദിക്കാനും അനുയോജ്യമാണ്.",
+      address: "വലിയപരമ്പ, കാസർഗോഡ്, കേരളം",
+      categories: ["backwaters", "boating", "nature"],
+      lat: 12.5833,
+      lon: 74.95,
+    },
+    {
+      name: "തൈക്കടപ്പുറം ബീച്ച്",
+      description: "മനോഹരമായ കടൽത്തീരം, വിനോദത്തിനും വിശ്രമത്തിനും അനുയോജ്യമാണ്.",
+      address: "തൈക്കടപ്പുറം, കാസർഗോഡ്, കേരളം",
+      categories: ["beach", "recreation", "water"],
+      lat: 12.5333,
+      lon: 74.9667,
+    },
+    {
+      name: "നീലേശ്വരം കൊട്ടാരം",
+      description: "ചരിത്രപരമായ കൊട്ടാരം, ആർക്കിടെക്ചറൽ സവിശേഷതകൾക്ക് പേരുകേട്ടതാണ്.",
+      address: "നീലേശ്വരം, കാസർഗോഡ്, കേരളം",
+      categories: ["palace", "historic", "architecture"],
+      lat: 12.2667,
+      lon: 75.1333,
+    },
+    {
+      name: "ബേള ചർച്ച്",
+      description: "പ്രശസ്തമായ ക്രിസ്ത്യൻ ആരാധനാലയം.",
+      address: "ബേള, കാസർഗോഡ്, കേരളം",
+      categories: ["church", "religion", "historic"],
+      lat: 12.5,
+      lon: 75.0,
+    },
+    {
+      name: "ചെറുവത്തൂർ കോട്ട (കോട്ട)",
+      description: "ചരിത്രപരമായ കോട്ട, ആർക്കിടെക്ചറൽ സവിശേഷതകൾക്ക് പേരുകേട്ടതാണ്.",
+      address: "ചെറുവത്തൂർ, കാസർഗോഡ്, കേരളം",
+      categories: ["fort", "historic", "architecture"],
+      lat: 12.5833,
+      lon: 74.9333,
+    },
+  ],
+}
+
+// Function to generate tourist locations based on district and coordinates
+function generateTouristLocations(district, lat, lon, radius) {
+  let locations = []
+
+  // If district is provided and exists in our database
+  if (district && KERALA_ATTRACTIONS_BY_DISTRICT[district]) {
+    locations = KERALA_ATTRACTIONS_BY_DISTRICT[district].map((spot) => {
+      const distance = calculateDistance(lat, lon, spot.lat, spot.lon)
+      return { ...spot, distance: Math.round(distance * 1000) } // Convert km to meters
+    })
+  } else {
+    // Fallback to all districts if specific district not found
+    Object.values(KERALA_ATTRACTIONS_BY_DISTRICT).forEach((districtSpots) => {
+      districtSpots.forEach((spot) => {
+        const distance = calculateDistance(lat, lon, spot.lat, spot.lon)
+        locations.push({ ...spot, distance: Math.round(distance * 1000) })
+      })
+    })
+  }
+
+  // Filter by radius (in km)
+  let filteredLocations = locations.filter((spot) => spot.distance <= radius * 1000)
+
+  // Sort by distance
+  filteredLocations.sort((a, b) => a.distance - b.distance)
+
+  // If less than 5 locations found and radius is 20km, expand to 30km
+  if (filteredLocations.length < 5 && radius === 20) {
+    const expandedRadius = 30
+    filteredLocations = locations.filter((spot) => spot.distance <= expandedRadius * 1000)
+    filteredLocations.sort((a, b) => a.distance - b.distance)
+  }
+
+  // Add image URLs and IDs to each location
+  filteredLocations = filteredLocations.map((spot, index) => ({
+    id: `loc-${district || "kerala"}-${index}`,
+    name: spot.name,
+    description: spot.description,
+    distance: spot.distance,
+    imageUrl: "/placeholder.svg?height=192&width=384",
+    address: spot.address,
+    categories: spot.categories,
+    lat: spot.lat,
+    lon: spot.lon,
+  }))
+
+  return filteredLocations
+}
+
+// Calculate distance between two coordinates using Haversine formula
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371 // Radius of the earth in km
+  const dLat = deg2rad(lat2 - lat1)
+  const dLon = deg2rad(lon2 - lon1)
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  const distance = R * c // Distance in km
+  return distance
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI / 180)
+}
+
+export async function GET(request) {
+  const searchParams = request.nextUrl.searchParams
+  const lat = searchParams.get("lat")
+  const lon = searchParams.get("lon")
+  const district = searchParams.get("district")
+  const radius = Number.parseInt(searchParams.get("radius") || "20") // Default to 20km if not specified
+
+  console.log(`Received request with lat: ${lat}, lon: ${lon}, district: ${district}, radius: ${radius}km`)
+
+  // Validate parameters
+  if (!lat || !lon) {
+    console.error("Missing required parameters: lat and lon are required")
+    return NextResponse.json({ error: "Latitude and longitude are required" }, { status: 400 })
+  }
+
+  // Validate that lat and lon are valid numbers
+  const latitude = Number.parseFloat(lat)
+  const longitude = Number.parseFloat(lon)
+
+  if (isNaN(latitude) || isNaN(longitude)) {
+    console.error(`Invalid coordinates: lat=${lat}, lon=${lon}`)
+    return NextResponse.json({ error: "Invalid latitude or longitude values" }, { status: 400 })
+  }
+
+  // Check if coordinates are within reasonable range
+  if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+    console.error(`Coordinates out of range: lat=${latitude}, lon=${longitude}`)
+    return NextResponse.json({ error: "Coordinates out of valid range" }, { status: 400 })
+  }
+
+  try {
+    // Generate tourist locations based on district and coordinates
+    console.log(`Generating tourist locations for ${district || "all districts"} within ${radius}km radius`)
+    const locations = generateTouristLocations(district, latitude, longitude, radius)
+    console.log(`Generated ${locations.length} locations`)
+
+    return NextResponse.json(locations)
+  } catch (error) {
+    console.error("Error generating tourist locations:", error)
+
+    // Return error response with details
+    return NextResponse.json(
+      {
+        error: "Failed to fetch tourist locations",
+        message: error.message,
+      },
+      { status: 500 },
+    )
+  }
+}

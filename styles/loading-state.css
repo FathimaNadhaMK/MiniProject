@@ -1,0 +1,44 @@
+/* Loading container */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  padding: 1rem;
+}
+
+/* Spinner */
+.loading-spinner {
+  height: 3rem;
+  width: 3rem;
+  animation: spin 1s linear infinite;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+/* Loading text */
+.loading-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.loading-message {
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Debug info */
+.debug-info {
+  background-color: var(--debug-bg);
+  border: 1px solid var(--debug-border);
+  border-radius: 0.25rem;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  width: 100%;
+  max-width: 500px;
+  font-family: monospace;
+  font-size: 0.875rem;
+}
