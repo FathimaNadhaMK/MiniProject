@@ -182,7 +182,7 @@ function Home() {
         >
           🌦️ Weather
         </button>
-        <button onClick={() => navigate("/NearbyPlacesMap")}>📍 Nearby Places</button>
+        <button onClick={() => window.location.href = "http://localhost:3000/"}>📍 Nearby Places</button>
         <button onClick={() => navigate("/Emergency")}>⚠️ Emergency Alerts</button>
        
         <button onClick={() => navigate("/AnnouncementPage")}>
