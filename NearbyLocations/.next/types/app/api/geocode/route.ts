@@ -1,4 +1,4 @@
-// File: C:\Users\GEO THOMAS\Downloads\tourist locations\app\api\geocode\route.js
+// File: C:\Users\HP\OneDrive\Desktop\geoproject\MiniProject\NearbyLocations\app\api\geocode\route.js
 import * as entry from '../../../../../app/api/geocode/route.js'
 import type { NextRequest } from 'next/server.js'
 

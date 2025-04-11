@@ -1,4 +1,4 @@
-// File: C:\Users\GEO THOMAS\Downloads\tourist locations\app\layout.jsx
+// File: C:\Users\HP\OneDrive\Desktop\geoproject\MiniProject\NearbyLocations\app\layout.jsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

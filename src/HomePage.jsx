@@ -171,15 +171,7 @@ function Home() {
         >
           📰 Local News
         </button>
-        <button
-          onClick={() => {
-            if (weather) {
-              navigate("/weather", { state: { weather } });
-            } else {
-              alert("Weather data is not available yet!");
-            }
-          }}
-        >
+        <button onClick={()=> navigate("/Weather")}>
           🌦️ Weather
         </button>
         <button onClick={() => window.location.href = "http://localhost:3000/"}>📍 Nearby Places</button>
@@ -188,8 +180,8 @@ function Home() {
         <button onClick={() => navigate("/AnnouncementPage")}>
           📢 Announcements
         </button>
-        <button>📺 Advertisements</button>
-        <button>🚦 Traffic</button>
+        <button onClick={()=> navigate("/Advertise")}>📺 Advertisements</button>
+        <button onClick={() => window.location.href = "http://localhost:3002/"}>📍Traffic</button>
        
       </div>
       

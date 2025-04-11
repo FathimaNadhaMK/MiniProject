@@ -1,0 +1,7 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/geocode/route": "/api/geocode",
+  "/api/directions/route": "/api/directions",
+  "/api/tourist-locations/route": "/api/tourist-locations",
+  "/page": "/"
+}

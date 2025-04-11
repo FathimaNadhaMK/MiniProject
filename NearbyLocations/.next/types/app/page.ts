@@ -1,4 +1,4 @@
-// File: C:\Users\GEO THOMAS\Downloads\tourist locations\app\page.jsx
+// File: C:\Users\HP\OneDrive\Desktop\geoproject\MiniProject\NearbyLocations\app\page.jsx
 import * as entry from '../../../app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

@@ -9,6 +9,28 @@ function Weather() {
   const [weather, setWeather] = useState(null);
   const [forecast, setForecast] = useState([]);
   const [location, setLocation] = useState(null);
+  
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src =
+      "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
+    script.async = true;
+    document.body.appendChild(script);
+  
+    window.googleTranslateElementInit = () => {
+      new window.google.translate.TranslateElement(
+        {
+          pageLanguage: "en",
+          includedLanguages: "ml",
+          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false,
+        },
+        "google_translate_element"
+      );
+    };
+  }, []);
+  
+  
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -66,6 +88,16 @@ function Weather() {
 
   return (
     <div className="weather-page">
+      <div
+  id="google_translate_element"
+  style={{
+    position: "fixed",
+    top: "20px",
+    right: "20px",
+    zIndex: 1000
+  }}
+></div>
+
       <h1>🌤️ Weather Report {weather?.city && `for ${weather.city}`}</h1>
 
       {weather ? (
@@ -78,7 +110,7 @@ function Weather() {
             <p><strong>Wind Speed:</strong> {weather.windSpeed} km/h</p>
           </div>
 
-          <h2>📅 5-Day Forecast</h2>
+          <h2>📅 3-Day Forecast</h2>
           <div className="forecast-container">
             {forecast.map((day, index) => (
               <div key={index} className="forecast-card">

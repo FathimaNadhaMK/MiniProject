@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-//import { requestNotificationPermission } from "./firebase-config";
-//import { messaging } from "./firebase-config";
-//import { onMessage } from "firebase/messaging";
+
 
 const OPENWEATHER_API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY; // Store API key in .env
 const WEATHERAPI_KEY = import.meta.env.VITE_WEATHERAPI_KEY; // Store WeatherAPI key in .env
@@ -44,11 +42,11 @@ const App = () => {
         },
         (error) => {
           console.error("Location error:", error);
-          setAlert("⚠️ ലൊക്കേഷൻ ആക്സസ് നിരസിച്ചു. കാലാവസ്ഥാ മുന്നറിയിപ്പ് ലഭ്യമല്ല.");
+          setAlert("⚠ ലൊക്കേഷൻ ആക്സസ് നിരസിച്ചു. കാലാവസ്ഥാ മുന്നറിയിപ്പ് ലഭ്യമല്ല.");
         }
       );
     } else {
-      setAlert("⚠️ ഈ ബ്രൗസറിൽ ജിയോളൊക്കേഷൻ പിന്തുണയ്ക്കുന്നില്ല.");
+      setAlert("⚠ ഈ ബ്രൗസറിൽ ജിയോളൊക്കേഷൻ പിന്തുണയ്ക്കുന്നില്ല.");
     }
   }, []);
 
@@ -136,13 +134,13 @@ const App = () => {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.header}>🌤️ കാലാവസ്ഥാ അടിയന്തര മുന്നറിയിപ്പ്</h1>
+      <h1 style={styles.header}>🌤 കാലാവസ്ഥാ അടിയന്തര മുന്നറിയിപ്പ്</h1>
       {alert && <div style={styles.alert}>{alert}</div>}
 
       <div style={styles.cardContainer}>
         {temperature !== null && (
           <div style={styles.card}>
-            <h3>🌡️ താപനില | Temperature</h3>
+            <h3>🌡 താപനില | Temperature</h3>
             <p>{temperature}°C</p>
           </div>
         )}
@@ -156,7 +154,7 @@ const App = () => {
 
         {windSpeed !== null && (
           <div style={styles.card}>
-            <h3>🌬️ കാറ്റ് വേഗത | Wind Speed</h3>
+            <h3>🌬 കാറ്റ് വേഗത | Wind Speed</h3>
             <p>{windSpeed} km/h</p>
           </div>
         )}
@@ -165,7 +163,7 @@ const App = () => {
       {rainChance !== null && rainTime !== null && (
         <div style={styles.rainCard}>
           <h2>☔ മഴ പ്രവചനം</h2>
-          <p>🌧️ ഇന്ന് {rainChance}% മഴയ്ക്ക് സാധ്യത</p>
+          <p>🌧 ഇന്ന് {rainChance}% മഴയ്ക്ക് സാധ്യത</p>
           <p>🕒 പ്രതീക്ഷിക്കുന്ന സമയം: {rainTime}</p>
         </div>
       )}

@@ -8,6 +8,7 @@ import Weather from "./Weather";
 import LocalNews from "./LocalNews";
 import AnnouncementPage from "./AnnouncementPage";
 import Emergency from "./Emergency";
+import Advertise from './Advertise';
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
       <Route path="/LocalNews" element={<LocalNews />} />
       <Route path="/AnnouncementPage" element={<AnnouncementPage />} />
       <Route path="/emergency" element={<Emergency />} />
+      <Route path="/advertise" element={<Advertise />} />
       <Route path="*" element={<h1>404 Not Found</h1>} />
     </Routes>
   );

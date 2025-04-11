@@ -1,3 +1,10 @@
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+body {
+  top: 0px !important;
+}
+
 .weather-page {
     text-align: center;
     padding: 20px;

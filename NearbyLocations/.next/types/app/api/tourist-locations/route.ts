@@ -1,4 +1,4 @@
-// File: C:\Users\GEO THOMAS\Downloads\tourist locations\app\api\tourist-locations\route.js
+// File: C:\Users\HP\OneDrive\Desktop\geoproject\MiniProject\NearbyLocations\app\api\tourist-locations\route.js
 import * as entry from '../../../../../app/api/tourist-locations/route.js'
 import type { NextRequest } from 'next/server.js'
 
