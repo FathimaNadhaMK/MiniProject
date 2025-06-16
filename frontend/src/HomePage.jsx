@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";  
+import React, { useState, useEffect } from "react";
 import "./HomePage.css";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import Announcement from "./AnnouncementPage.jsx";
 import LocalNews from "./LocalNews.jsx";
-
 
 function Home() {
   const navigate = useNavigate();
@@ -15,18 +14,38 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [weather, setWeather] = useState(null);
   const [coordinates, setCoordinates] = useState({ lat: null, lon: null });
+  const [trafficUrl, setTrafficUrl] = useState(null);
+  const [adMedia, setAdMedia] = useState(null);
+  const [adMediaType, setAdMediaType] = useState(null);
+
+  const [adList, setAdList] = useState([]);
+
+useEffect(() => {
+  const storedAds = JSON.parse(localStorage.getItem("adList")) || [];
+  setAdList(storedAds);
+}, []);
+  
+useEffect(() => {
+  const savedMedia = localStorage.getItem("adMedia");
+  const savedType = localStorage.getItem("adMediaType");
+
+  if (savedMedia) {
+    setAdMedia(savedMedia);
+    setAdMediaType(savedType);
+  }
+}, []);
+
 
   const API_KEY = "0ad52ee3b445ea638ccc1328cbe4fbbf";
 
-  // Fetch weather information using the provided latitude and longitude
   const fetchWeather = async (lat, lon) => {
     try {
-      const WEATHER_API_KEY = "f723abe0388a4ebfa84133152250303"; // Replace with your actual WeatherAPI key
+      const WEATHER_API_KEY = "f723abe0388a4ebfa84133152250303";
       const weatherRes = await fetch(
         `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${lat},${lon}&aqi=no`
       );
       const weatherData = await weatherRes.json();
-  
+
       if (weatherData.current) {
         setWeather({
           temp: weatherData.current.temp_c,
@@ -44,7 +63,6 @@ function Home() {
     }
   };
 
-  // Fetch Wikipedia information for a given city
   const fetchWikiInfo = async (city) => {
     try {
       const wikiRes = await fetch(
@@ -54,13 +72,13 @@ function Home() {
         throw new Error("Wikipedia page not found");
       }
       const wikiData = await wikiRes.json();
-  
+
       if (wikiData.extract) {
         setWikiInfo(wikiData.extract);
       } else {
         setWikiInfo("ഈ സ്ഥലത്തിനായി വിവരങ്ങൾ ലഭ്യമല്ല.");
       }
-  
+
       if (wikiData.thumbnail?.source) {
         setImage(wikiData.thumbnail.source);
       } else {
@@ -73,20 +91,27 @@ function Home() {
     }
   };
 
-  // Fetch location details using OpenStreetMap's reverse geocoding
+  useEffect(() => {
+    fetch("/config.json")
+      .then((res) => res.json())
+      .then((data) => setTrafficUrl(data.trafficUrl))
+      .catch((err) => {
+        console.error("Config fetch error:", err);
+        setTrafficUrl(null);
+      });
+  }, []);
+
   const fetchLocation = async (lat, lon) => {
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
       );
       const data = await res.json();
-  
-      console.log("🔍 Full Location Data:", data);
-  
+
       if (!data.address) {
         throw new Error("No address data found");
       }
-  
+
       const microLocation =
         data.address.suburb ||
         data.address.neighbourhood ||
@@ -97,10 +122,10 @@ function Home() {
         data.address.city ||
         data.address.village ||
         "Unknown Location";
-  
+
       setLocation(microLocation);
       setDescription(`Welcome to ${microLocation}, a wonderful place to explore!`);
-  
+
       fetchWikiInfo(microLocation);
       fetchWeather(lat, lon);
     } catch (error) {
@@ -142,11 +167,9 @@ function Home() {
       setLoading(false);
     }
   }, []);
+
   return (
     <div className="home-container">
-      {/* Navigation Bar */}
-       
-      {/* Weather Summary moved under the search bar */}
       {weather && (
         <div className="weather-container">
           <h2>🌦️ Current Weather</h2>
@@ -161,7 +184,6 @@ function Home() {
 
       <div className="nav-bar">
         <button>🏠 Home</button>
-        {/* Pass location and coordinates to LocalNews via router state */}
         <button
           onClick={() =>
             navigate("/LocalNews", {
@@ -171,22 +193,19 @@ function Home() {
         >
           📰 Local News
         </button>
-        <button onClick={()=> navigate("/Weather")}>
-          🌦️ Weather
-        </button>
-        <button onClick={() => window.location.href = "http://localhost:3000/"}>📍 Nearby Places</button>
+        <button onClick={() => navigate("/Weather")}>🌦️ Weather</button>
+        <button onClick={() => (window.location.href = "http://localhost:3000/")}>📍 Nearby Places</button>
         <button onClick={() => navigate("/Emergency")}>⚠️ Emergency Alerts</button>
-       
-        <button onClick={() => navigate("/AnnouncementPage")}>
-          📢 Announcements
-        </button>
-        <button onClick={()=> navigate("/Advertise")}>📺 Advertisements</button>
-        <button onClick={() => window.location.href = "http://localhost:3002/"}>📍Traffic</button>
-       
+        <button onClick={() => navigate("/AnnouncementPage")}>📢 Announcements</button>
+        <button onClick={() => navigate("/Advertise")}>📺 Advertisements</button>
+        <button onClick={() => {
+          if (trafficUrl && location) {
+            window.location.href = `${trafficUrl}?location=${encodeURIComponent(location)}&lat=${coordinates.lat}&lon=${coordinates.lon}`;
+          }
+        }}>📍 Traffic</button>
       </div>
-      
+
       <div className="search-container">
-        {/* The input container */}
         <div className="search-bar">
           <input
             type="text"
@@ -195,24 +214,34 @@ function Home() {
             onChange={(e) => setSearchLocation(e.target.value)}
           />
         </div>
-        
-        {/* The button container */}
         <div className="barr">
           <button onClick={handleSearch}>🔍</button>
         </div>
       </div>
-     
-      
+
       <div className="layout-container">
-        {/* Left column: Advertisement box */}
-        <div className="ad-box">
-          {/* Sample text or actual ads */}
-          <h2>Advertisement</h2>
-          <p>contact us to place your ad</p>
-        </div>
+       
+
+       <div className="ad-box">
+  <h2>Advertisements</h2>
+  {adList.length > 0 ? (
+    adList.map((ad, index) => (
+      <div key={index} style={{ marginBottom: "20px", borderBottom: "1px solid #ccc", paddingBottom: "10px" }}>
+        {ad.mediaType === "video" ? (
+          <video src={ad.media} controls width="100%" />
+        ) : ad.mediaType === "image" ? (
+          <img src={ad.media} alt={`Ad ${index + 1}`} style={{ width: "100%", height: "auto" }} />
+        ) : (
+          <p style={{ fontSize: "1.2rem", fontWeight: "bold" }}>{ad.media}</p>
+        )}
+      </div>
+    ))
+  ) : (
+    <p>Contact us to place your ad.</p>
+  )}
+</div>
 
         <div className="loc">
-          {/* Location Info */}
           {loading ? (
             <p className="loading-text">Fetching your location...</p>
           ) : (

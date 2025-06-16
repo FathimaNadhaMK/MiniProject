@@ -1,6 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 
+const getParams = () => {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    location: params.get('location'),
+    lat: parseFloat(params.get('lat')),
+    lon: parseFloat(params.get('lon')),
+  };
+};
+
+
 const Project = () => {
   const mapRef = useRef(null);
   const [location, setLocation] = useState(null);
@@ -11,22 +21,14 @@ const Project = () => {
   const [trafficDescription, setTrafficDescription] = useState('');
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        () => {
-          alert('Unable to fetch your location.');
-        }
-      );
+    const { lat, lon } = getParams();
+    if (lat && lon) {
+      setLocation({ lat, lng: lon });
     } else {
-      alert('Geolocation is not supported by your browser.');
+      alert('No location data received from Home page.');
     }
   }, []);
+  
 
   useEffect(() => {
     if (location) {
@@ -93,8 +95,10 @@ const Project = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1 style={{ textAlign: 'center' }}>Local Stream</h1>
-      <h2 style={{ textAlign: 'center' }}>Live Traffic Updates with SMS Alerts</h2>
+    <h1 style={{ textAlign: 'center' }}>Local Stream</h1>
+    <h2 style={{ textAlign: 'center' }}>Live Traffic Updates with SMS Alerts</h2>
+    
+  
       <div style={{ display: 'flex', marginTop: '20px' }}>
         <div style={{ flex: 2, marginRight: '20px' }}>
           <div
@@ -199,6 +203,15 @@ const Project = () => {
           ) : (
             <p>No routes saved yet.</p>
           )}
+
+          
+    {location ? (
+      <p style={{ textAlign: 'center', fontWeight: 'bold' }}>
+        Current Location: Latitude {location.lat.toFixed(4)}, Longitude {location.lng.toFixed(4)}
+      </p>
+    ) : (
+      <p style={{ textAlign: 'center', fontStyle: 'italic' }}>Loading location...</p>
+    )}
         </div>
       </div>
     </div>
