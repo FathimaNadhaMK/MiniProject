@@ -7,6 +7,8 @@ import LocationData from "./models/LocationData.js";
 import { WebSocketServer } from "ws";
 import Parser from "rss-parser";
 import Announcement from "./models/Announcement.js";
+import fs from 'fs';
+
 
 
 
@@ -29,19 +31,7 @@ mongoose
   .catch((err) => console.error("❌ MongoDB Connection Error:", err)); 
 
 
-// ✅ Define MongoDB Schema for Storing Detected Locations
-const locationSchema = new mongoose.Schema({
-  text: String,
-  detectedLocations: [String],
-  timestamp: { type: Date, default: Date.now },
-});
-const announcementSchema = new mongoose.Schema({
-  id: String,
-  title: String,
-  description: String,
-  date: String,
-  link: String,
-});
+
 
 const RSS_FEEDS = [
   "https://go.lsgkerala.gov.in/pages/rss.php",
@@ -57,12 +47,20 @@ const fetchRSSNews = async () => {
       feed.items.forEach(async (item) => {
         const existing = await Announcement.findOne({ id: item.guid || item.link });
         if (!existing) {
-          await Announcement.create({
+          const newItem = await Announcement.create({
             id: item.guid || item.link,
             title: item.title,
             description: item.contentSnippet || "No description available.",
             date: item.pubDate || new Date().toISOString(),
             link: item.link,
+          });
+
+          // 🟡 Now also call NLP on title + description
+          const fullText = `${item.title} ${item.contentSnippet || ""}`;
+          await fetch("http://localhost:5001/detect-location", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: fullText }),
           });
         }
       });
@@ -73,17 +71,19 @@ const fetchRSSNews = async () => {
   }
 };
 
+
 const manager = new NlpManager({
   languages: ["en", "ml"],
   forceNER: true,
-  ner: { threshold: 0.7 }, // Lower threshold for faster processing
+  ner: { threshold: 0.7 },
 });
 
 // --- Named Entity Training for Locations and People ---
 async function trainNLP() {
   const locations = [
-    // Your location data here... ["pulamanthole", "Pulamanthole", "പുലാമന്തോൾ"],
+    ["ayarkunnam", "Ayarkunnam", "അയർക്കുന്നം"],
     ["kottayam", "Kottayam", "കോട്ടയം"],
+    ["melukavu", "Melukavu", "മേലുകാവ്"],
     ["erattupetta", "Erattupetta", "ഈരാറ്റുപേട്ട"],
     ["poonjar", "Poonjar", "പൂഞ്ഞാർ"],
     ["meenachil", "Meenachil", "മീനച്ചിൽ"],
@@ -97,15 +97,13 @@ async function trainNLP() {
     ["thrissur", "Thrissur", "തൃശ്ശൂര്"],
     ["palakkad", "Palakkad", "പാലക്കാട്"],
     ["malappuram", "Malappuram", "മലപ്പുറം"],
-    ["kozhikode", "Kozhikode", "കോഴിക്കോഡ്"],
+    ["kozhikode", "Kozhikode", "കോഴിക്കോട്"],
     ["wayanad", "Wayanad", "വയനാട്"],
     ["kannur", "Kannur", "കണ്ണൂര്"],
     ["kasaragod", "Kasaragod", "കാസര്‍കോട്"],
     ["pala", "Pala", "പാല"],
-    // Additional Kottayam locations
     ["changanassery", "Changanassery", "ചങ്ങനാശ്ശേരി"],
     ["vaikom", "Vaikom", "വൈക്കം"],
-    ["pala", "Pala", "പാലാ"],
     ["mundakkayam", "Mundakkayam", "മുണ്ടക്കായം"],
     ["kanjirappally", "Kanjirappally", "കാഞ്ഞിരപ്പള്ളി"],
     ["kaduthuruthy", "Kaduthuruthy", "കടുത്തുരുത്തി"],
@@ -130,64 +128,60 @@ async function trainNLP() {
     ["kothanalloor", "Kothanalloor", "കൊത്തനല്ലൂർ"],
     ["kurichy", "Kurichy", "കുറിച്ചി"],
     ["kudamaloor", "Kudamaloor", "കുടമലൂർ"],
-    ["kuravilangad", "Kuravilangad", "കുറവിലങ്ങാട്"],
     ["muttuchira", "Muttuchira", "മുട്ടുചിറ"],
     ["pariyaram", "Pariyaram", "പരിയാരം"],
     ["perumbaikad", "Perumbaikad", "പെരുമ്പൈക്കാട്"],
     ["thidanad", "Thidanad", "തിടനാട്"],
-    ["vakathanam", "Vakathanam", "വാകത്താനം"],
     ["pulamanthole", "Pulamanthole", "പുലാമന്തോൾ"],
     ["koppam", "Koppam", "കൊപ്പം"],
     ["ottapalam", "Ottapalam", "ഒട്ടപലം"],
     ["chittur", "Chittur", "ചിട്ടൂർ"],
     ["alathur", "Alathur", "അലത്തൂർ"],
     ["mannarkkad", "Mannarkkad", "മണ്ണാർക്കട"],
-    ["tirunavaya", "Tirunavaya", "തിരുനാവായ"],
-
+    ["tirunavaya", "Tirunavaya", "തിരുനാവായ"]
   ];
 
-  // Train locations
   locations.forEach(([key, en, ml]) => {
     manager.addNamedEntityText("location", key, ["en", "ml"], [en, ml]);
   });
 
   const people = [
-    // Your people data here...
     ["pinarayi vijayan", "Pinarayi Vijayan", "പിണറായി വിജയൻ"],
     ["kk george", "KK George", "കെ.കെ. ജോർജ്"],
     ["m k stalin", "M.K. Stalin", "എം.കെ. സ്റ്റാലിൻ"],
-    ["Poonjar MLA","poonjar MLA","പൂഞ്ഞാർ എം എൽ എ"],
-    ["poonjar MLA adv sebastin koluthingal", "poonjar MLA adv sebastin koluthingal", "പൂഞ്ഞാർ എംഎൽഎ അഡ്വ. സെബാസ്റ്റ്യൻ കുളത്തुङ്കൽ"],
-    // Additional person training examples
-    ["v s achuthanandan", "V S Achuthanandan", "വി എസ് അച്യുതാനന്ദൻ"],
-    ["k karunakaran", "K Karunakaran", "കെ. കരുണാകരൻ"],
-    ["oommen chandy", "Oommen Chandy", "ഓമ്മൻ ചാണ്ടി"],
-    ["a k antony", "A K Antony", "എകെ ആന്റണി"],
-    ["k muraleedharan", "K Muraleedharan", "കെ. മുരളീധരൻ"],
-    ["suresh kumar", "Suresh Kumar", "സുരേഷ് കുമാർ"],
-
+    ["poonjar MLA adv sebastin koluthingal", "poonjar MLA adv sebastin koluthingal", "പൂഞ്ഞാർ എംഎൽഎ അഡ്വ. സെബാസ്റ്റ്യൻ കുളത്തുങ്കൽ"]
   ];
+manager.addDocument('ml', 'ഞാൻ മേലുകാവിലാണ് താമസിക്കുന്നത്', 'detect.location');
+manager.addDocument('ml', 'മേലുകാവിൽ മഴ പെയ്യുന്നു', 'detect.location');
+manager.addDocument('ml', 'വാർത്ത മേലുകാവിൽ നിന്നാണ്', 'detect.location');
+manager.addDocument('ml', 'മുൻപരിചയം മേലുകാവിനെയാണ്', 'detect.location');
+manager.addDocument('ml', 'മേലുകാവ് ഒരു ഗ്രാമമാണ്', 'detect.location');
 
   people.forEach(([key, en, ml]) => {
     manager.addNamedEntityText("person", key, ["en", "ml"], [en, ml]);
   });
 
-  // --- Additional Training: Recognize Person Names Starting with a Location ---
   const locationKeys = [...new Set(locations.map(([key]) => key))];
   const regexPattern = new RegExp(`^(${locationKeys.join("|")})\\s+.+`, "i");
-manager.addRegexEntity("person", ["en", "ml"], regexPattern);
+  manager.addRegexEntity("person", ["en", "ml"], regexPattern);
 
   await manager.train();
-  await manager.save();
+  await manager.save('./model.nlp');
+  console.log("✅ NLP Model Trained and Saved");
 }
 
-await trainNLP();
-trainNLP().then(() => console.log("✅ NLP Model Trained")).catch(console.error);
+if (!fs.existsSync('./model.nlp')) {
+  trainNLP();
+} else {
+  console.log("📁 Existing NLP model found: Skipping training.");
+}
 
 
 // ✅ Endpoint for Getting Location Variants
 const locationMapping = {
-  
+  ayarkunnam:["ayarkunnam", "Ayarkunnam", "അയർക്കുന്നം"],
+   malappuram:["malappuram", "Malappuram", "മലപ്പുറം"],
+  melukavu: ["melukavu", "Melukavu", "മേലുകാവ്"],
   // Your location mapping data here...
   pala:["pala","Pala","പാല"],
   pulamanthole: ["pulamanthole", "Pulamanthole", "പുലാമന്തോൾ"],
@@ -350,15 +344,19 @@ app.get("/news", async (req, res) => {
     if (!location) {
       return res.status(400).json({ error: "Missing location parameter" });
     }
+         
 
-    // ✅ Query the correct `LocationData` collection for news
-    const news = await LocationData.find({
-      location: { $regex: new RegExp(location, "i") },
-      title: { $exists: true }, // ✅ Ensure we are fetching only news articles
-    })
-      .sort({ pubDate: -1 })
-      .limit(20)
-      .lean();
+    // ✅ Search in detectedLocations array (which contains Malayalam + English variants)
+    const variants = locationMapping[location.toLowerCase()] || [location];
+
+const news = await LocationData.find({
+  detectedLocations: { $in: variants },
+  title: { $exists: true }
+})
+.sort({ pubDate: -1 })
+.limit(20)
+.lean();
+
 
     console.log("✅ News fetched:", news.length);
     res.json({ news });
@@ -369,38 +367,65 @@ app.get("/news", async (req, res) => {
 });
 
 
+
 app.get("/get-location-variants/:location", (req, res) => {
   const location = req.params.location.toLowerCase();
   res.json({ variants: locationMapping[location] || [location] });
 });
 
-// ✅ Optimized Endpoint for Detecting Locations
- //✅ Location Detection API
+
 app.post("/detect-location", async (req, res) => {
   const { text } = req.body;
+
   if (!text) return res.status(400).json({ error: "No text provided" });
 
   try {
     const existingEntry = await LocationData.findOne({ text });
+
     if (existingEntry) {
+      console.log("📦 Returning cached location:", existingEntry.detectedLocations);
       return res.json({ locations: existingEntry.detectedLocations });
     }
 
     const response = await manager.process("ml", text);
-    const locations = response.entities
+    let locations = response.entities
       .filter((entity) => entity.entity === "location")
       .map((entity) => entity.option);
 
     if (locations.length > 0) {
+      console.log("🟢 Detected by node-nlp:", locations);
+    } else {
+      console.log("🟡 Trying Python fallback model...");
+      const fallbackRes = await fetch("http://localhost:7001/ner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+
+      const fallbackData = await fallbackRes.json();
+      locations = fallbackData.locations || [];
+      console.log("🟣 Fallback model result:", locations);
+    }
+
+    // Save only if locations found
+    if (locations.length > 0) {
       await LocationData.create({ text, detectedLocations: locations });
+      console.log("✅ Saved to DB:", locations);
+    } else {
+      console.log("❌ No locations detected");
     }
 
     res.json({ locations });
   } catch (error) {
-    console.error("❌ Error processing NLP:", error);
+    console.error("❌ Error in detect-location:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-})
+  console.log("🔍 NLP Raw Output:", response.entities);
+
+});
+
+
+
 app.get("/announcements", async (req, res) => {
   try {
     console.log("📢 Fetching announcements...");
@@ -432,3 +457,5 @@ app.listen(PORT, () => {
 });
 
 export { wss };
+
+
