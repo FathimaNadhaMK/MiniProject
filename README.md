@@ -9,7 +9,7 @@
 ## 🚀 Features
 
 
-- 📍 **Location-aware content**: News and alerts filtered by district
+- 📍 **Location-aware content**: News and alerts filtered by location
 - 🧠 **Smart NLP tagging**: Location entities extracted from RSS feeds using NER
 - 🔁 **Hybrid NLP pipeline**: JS-based NLP with Python ML fallback (Transformers)
 - 🌐 **Multilingual support**: Handles both Malayalam and English districts
@@ -70,10 +70,10 @@ VITE_WEATHERAPI_KEY=<your-weatherapi-key>
 How It Works
 RSS feeds are parsed and stored via backend script
 Headlines and descriptions are passed to /detect-location
-node-nlp tries to detect district names (English + Malayalam)
+node-nlp tries to detect location names (English + Malayalam)
 If not found, request is forwarded to Python ML API (/ner)
 Detected entities and article content are stored in MongoDB
-The frontend retrieves and displays data based on user district
+The frontend retrieves and displays data based on user location
 Firebase auth ensures secure access to features
 
 🧪 Testing
