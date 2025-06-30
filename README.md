@@ -2,9 +2,8 @@
 
 **LocalStream** is a full-stack web app that delivers **location-specific news, emergency alerts, and community updates**. By combining **multilingual NLP**, **machine learning**, and **Firebase authentication**, it offers users a personalized experience built around their geographic district.
 
-🔗 **Live App:** mini-project-sandy-nine.vercel.app  
+🔗 **Live App:** https://mini-project-sandy-nine.vercel.app/login
 🔒 **Authentication:** Enabled via Firebase  
-📡 **RSS Sources:** [PIB India](https://www.pib.gov.in), (Mathrubhumi, The Hindu, Onmanorama, OneIndia, local portals like MeenachilNews, ErattupettaNews, etc.)
 ---
 
 ## 🚀 Features
