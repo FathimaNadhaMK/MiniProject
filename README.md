@@ -1,115 +1,95 @@
-LOCALSTREAM – Location-Based News & Community Engagement Platform
+# 📡 LocalStream – Real-Time Location-Based News & Community Platform
 
-LocalStream is a full-stack web application designed to deliver real-time, hyper-local news, emergency alerts, and community announcements based on the user's geographic location. It uses Machine Learning (NER) and multilingual Natural Language Processing (NLP) to intelligently analyze news feeds from trusted government sources, offering users relevant, personalized content.
+**LocalStream** is a full-stack web app that delivers **location-specific news, emergency alerts, and community updates**. By combining **multilingual NLP**, **machine learning**, and **Firebase authentication**, it offers users a personalized experience built around their geographic district.
+
+🔗 **Live App:** mini-project-sandy-nine.vercel.app  
+🔒 **Authentication:** Enabled via Firebase  
+📡 **RSS Sources:** [PIB India](https://www.pib.gov.in), (Mathrubhumi, The Hindu, Onmanorama, OneIndia, local portals like MeenachilNews, ErattupettaNews, etc.)
+---
+
+## 🚀 Features
+
+
+- 📍 **Location-aware content**: News and alerts filtered by district
+- 🧠 **Smart NLP tagging**: Location entities extracted from RSS feeds using NER
+- 🔁 **Hybrid NLP pipeline**: JS-based NLP with Python ML fallback (Transformers)
+- 🌐 **Multilingual support**: Handles both Malayalam and English districts
+- 📡 **Live news ingestion**: Fetches from local and national RSS feeds
+- 📢 **Advertisement module**: Post and view local community ads or notices
+- 🔐 **Authentication**: Firebase Google login integration
+- 🌦 **Weather insights**: Real-time weather cards for your district
+- 🧩 **Modular frontend**: Reusable React components and clean architecture
+- 🗄️ **MongoDB backend**: Flexible and scalable document database
+- ☁️ **Fully deployed**: Vercel (Frontend), Render/HF (Backend)
 
 ---
 
-## KEY FEATURES
+## 🔧 Tech Stack
 
-* Location based news filtering based on user’s location
-* Named Entity Recognition (NER) using both JavaScript and Python
-* Dual-layer NLP: node-nlp for fast detection and Python ML fallback using HuggingFace Transformers
-* Multilingual support for Malayalam and English
-* Live RSS feed parsing from sources like PIB and Kerala.gov.in
-* React-based modular frontend with reusable components
-* MongoDB for fast and flexible backend storage
-* WebSocket-ready architecture for real-time features (future support)
-* Firebase integration for storage and potential user authentication
-
----
-
-## TECH STACK
-
-Frontend: React (Vite), JSX, Tailwind CSS or CSS Modules
-Backend: Node.js, Express.js
-ML/NLP: Python, Flask, HuggingFace Transformers (bert-base-multilingual-cased-ner-hrl)
-Database: MongoDB with Mongoose ODM
-APIs Used: Government RSS feeds, OpenWeather, WeatherAPI
-Tools: Git, VS Code, Postman, dotenv for environment management
+| Layer         | Technology                              |
+|---------------|------------------------------------------|
+| Frontend      | React (Vite), CSS Modules                |
+| Backend       | Node.js, Express.js, WebSocket (WSS)     |
+| NLP / ML      | Python (Flask), HuggingFace Transformers |
+| Database      | MongoDB (Atlas) + Mongoose               |
+| Auth / Storage| Firebase                                 |
+| Deployment    | Vercel (frontend), Render/HF (backend)   |
 
 ---
 
-## HOW TO RUN
-
-Requirements:
-
-* Node.js and npm
-* Python 3.x
-* MongoDB Atlas account or local MongoDB
-* Git
-
-Step-by-step:
-
-1. Clone the repository
-   git clone [https://github.com/yourusername/LocalStream.git](https://github.com/yourusername/LocalStream.git)
-   cd LocalStream
-
-2. Setup Frontend
-   cd frontend
-   npm install
-   npm run dev
-
-3. Setup Backend
-   cd ../backend
-   npm install
-   node nlpServer.js
-
-4. Start Python ML API (in a separate terminal)
-   python ml\_ner\_api.py
-
 ---
 
-## .ENV CONFIGURATION
+## ⚙️ Getting Started (Local)
 
-Create a .env file in the backend directory with:
+### Prerequisites
+- Node.js ≥ 18
+- Python ≥ 3.8
+- MongoDB (local or Atlas)
+- Firebase project setup
 
-MONGO\_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/
+### Installation
+
+```bash
+# 1. Clone
+git clone https://github.com/FathimaNadhaMK/MiniProject.git
+cd miniproject
+cd frontend
+npm install
+npm run dev
+
+cd ../backend
+npm install
+node nlpServer.js
+
+python ml_ner_api.py
+
+MONGO_URI=mongodb+srv://<user>:<pass>@cluster.mongodb.net/
 PORT=5001
-VITE\_OPENWEATHER\_API\_KEY=your\_api\_key
-VITE\_WEATHERAPI\_KEY=your\_api\_key
+VITE_OPENWEATHER_API_KEY=<your-openweather-key>
+VITE_WEATHERAPI_KEY=<your-weatherapi-key>
 
----
+How It Works
+RSS feeds are parsed and stored via backend script
+Headlines and descriptions are passed to /detect-location
+node-nlp tries to detect district names (English + Malayalam)
+If not found, request is forwarded to Python ML API (/ner)
+Detected entities and article content are stored in MongoDB
+The frontend retrieves and displays data based on user district
+Firebase auth ensures secure access to features
 
-## HOW IT WORKS
+🧪 Testing
+✅ Postman used for testing /news, /detect-location, /ner
+✅ Python API tested for multilingual entities
+✅ Feed ingestion verified with sample articles
 
-* RSS feeds are fetched from verified sources like PIB and Kerala.gov
-* News headlines and descriptions are passed to the backend `/detect-location` endpoint
-* node-nlp attempts to extract the location
-* If it fails, a request is sent to a Python Flask API running a transformer-based NER model
-* Extracted locations are stored along with articles in MongoDB
-* The frontend fetches and filters the articles based on the user’s selected or detected district
+📈 Future Enhancements
+Push notifications for emergencies (Firebase Cloud Messaging)
+Admin dashboard for CMS-like controls
+User-generated reports and moderation
+Docker setup for scalable deployment
+Full PWA support and offline mode
 
----
+📄 License
+This project is open-sourced under the MIT License.
 
-## SAMPLE API ENDPOINTS
 
-GET    /news?location=Kottayam       – fetches news for a given location
-GET    /announcements                – fetches the latest announcements
-POST   /detect-location              – sends text to NLP/ML pipeline
-POST   /ner                          – directly invokes Python-based NER model
-
----
-
-## FUTURE IMPROVEMENTS
-
-* Push notifications and alerts
-* Admin dashboard with analytics
-* Community discussions and comment features
-* Docker support and CI/CD pipelines
-* Improved error handling and security middleware
-
----
-
-## TESTING
-
-* API testing with Postman
-* Sample RSS feed injections for offline tests
-* Manual verification of multilingual location extraction
-
----
-
-## LICENSE
-
-This project is licensed under the MIT License.
-
----
